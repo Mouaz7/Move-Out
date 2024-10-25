@@ -1,0 +1,155 @@
+<%- include("../partials/header") %>
+
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background-color: #f8f9fa;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .signup-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    margin: auto;
+    max-width: 500px;
+    width: 90%;
+    flex: 1;
+    max-height: 650px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  h1 {
+    margin-bottom: 15px;
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .info-text {
+    text-align: center;
+    color: #6c757d;
+    margin-bottom: 15px;
+  }
+
+  .error-message {
+    color: red;
+    margin: 15px 0; /* Add margin for spacing */
+    text-align: center; /* Center align the error message */
+  }
+
+  label {
+    margin: 8px 0 4px;
+    font-weight: bold;
+    display: block;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border 0.3s;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    border-color: #0056b3;
+    outline: none;
+  }
+
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  .login-link {
+    text-align: center;
+    box-shadow: none;
+  }
+
+  .login-link a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="signup-container">
+  <form action="/move/register" method="POST" class="signup-form" id="signup-form">
+    <h1>Sign Up</h1>
+    <p class="info-text">Create an account to get started</p>
+    <hr />
+
+    <label for="name">Name</label>
+    <input type="text" placeholder="Enter Your Name" name="name" required />
+
+    <label for="email">Email</label>
+    <input type="email" placeholder="Enter Email" name="email" required />
+
+    <label for="psw">Password</label>
+    <input type="password" placeholder="Enter Password" name="psw" required />
+
+    <label for="psw_repeat">Repeat Password</label>
+    <input type="password" placeholder="Repeat Password" name="psw_repeat" required />
+
+    <% if (errorMessage) { %>
+    <div class="error-message" id="error-message">
+      <p><%= errorMessage %></p>
+    </div>
+    <% } %>
+
+    <button type="submit" class="signupbtn" id="submit-button">Sign Up</button>
+
+    <div class="login-link" id="login-link">
+      <p>Already have an account? <a href="/move/login">Login here</a></p>
+    </div>
+  </form>
+</div>
+
+<%- include("../partials/footer") %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const errorMessage = document.getElementById("error-message");
+    const submitButton = document.getElementById("submit-button");
+    const loginLink = document.getElementById("login-link");
+    const passwordFields = document.querySelectorAll('input[type="password"]');
+
+    if (errorMessage) {
+      submitButton.style.display = "none";
+      loginLink.style.display = "none";
+      errorMessage.style.display = "block";
+      setTimeout(() => {
+        errorMessage.style.display = "none";
+        submitButton.style.display = "block";
+        loginLink.style.display = "block";
+      }, 4000);
+    }
+  });
+</script>

@@ -1,0 +1,211 @@
+<%- include("../partials/header") %>
+
+<div class="login-container">
+  <div class="login-box">
+    <h2 class="login-title">Login to MoveOut</h2>
+
+    <form action="/move/login" method="POST">
+      <div class="input-container">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter Email" required />
+      </div>
+
+      <div class="input-container">
+        <label for="psw">Password</label>
+        <input type="password" id="psw" name="psw" placeholder="Enter Password" required />
+      </div>
+
+      <% if (errorMessage) { %>
+      <div class="error-message" id="error-message">
+        <p><%= errorMessage %></p>
+      </div>
+      <% } %>
+
+      <button type="submit" class="btn login-btn" id="submit-button">Login</button>
+
+      <div class="forgot-password" id="forgot-password">
+        <a href="#">Forgot password?</a>
+      </div>
+
+      <div class="register-link" id="register-link">
+        <p>Don't have an account? <a href="/move/register">Sign Up</a></p>
+      </div>
+    </form>
+
+    <!-- Google Login Button -->
+    <div class="google-login" id="google-login">
+      <a href="/auth/google" class="btn google-btn">
+        <img src="/style/google.ico" alt="Google Icon" class="google-icon" />
+        Login with Google
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const errorMessage = document.getElementById("error-message");
+    const submitButton = document.getElementById("submit-button");
+    const forgotPassword = document.getElementById("forgot-password");
+    const googleLogin = document.getElementById("google-login");
+    const registerLink = document.getElementById("register-link");
+
+    if (errorMessage) {
+      submitButton.style.display = "none";
+      forgotPassword.style.display = "none";
+      googleLogin.style.display = "none";
+      registerLink.style.display = "none";
+      errorMessage.style.display = "block";
+      setTimeout(() => {
+        errorMessage.style.display = "none";
+        submitButton.style.display = "block";
+        forgotPassword.style.display = "block";
+        googleLogin.style.display = "block";
+        registerLink.style.display = "block";
+      }, 4000);
+    }
+  });
+</script>
+
+<%- include("../partials/footer") %>
+
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background-color: #f8f9fa;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+    margin-top: -172px;
+    box-shadow: none; /* Remove shadow */
+  }
+
+  .login-box {
+    max-width: 500px;
+    width: 90%;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    max-height: 650px;
+    margin-top: 100px;
+    padding: 20px;
+  }
+
+  .login-title {
+    font-size: 2rem;
+    color: #343a40;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .error-message {
+    color: red;
+    margin: 15px 0; /* Add margin for spacing */
+    text-align: center; /* Center align the error message */
+  }
+
+  .input-container {
+    margin-bottom: 10px; /* Reduced space between fields */
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #495057;
+  }
+
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: none; /* Remove border */
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #495057;
+    box-shadow: none; /* Remove shadow */
+  }
+
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    border-color: #007bff; /* Highlight border on focus */
+    outline: none; /* Remove default focus outline */
+  }
+
+  input[type="checkbox"] {
+    margin-right: 5px;
+  }
+
+  .checkbox-container {
+    margin: 10px 0; /* Adjusted for less spacing */
+  }
+
+  .btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .btn:hover {
+    background-color: #0056b3;
+  }
+
+  .forgot-password,
+  .register-link {
+    text-align: center;
+    box-shadow: none;
+    padding: 0%;
+  }
+
+  .register-link a {
+    color: #007bff;
+  }
+
+  .register-link a:hover {
+    text-decoration: underline;
+  }
+
+  .google-login {
+    margin-top: 20px;
+    text-align: center;
+    box-shadow: none;
+    padding: 0%;
+  }
+
+  .google-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #db4437;
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    transition: background-color 0.3s;
+  }
+
+  .google-btn:hover {
+    background-color: #c13527;
+  }
+
+  .google-icon {
+    width: 20px;
+    margin-right: 10px;
+  }
+</style>

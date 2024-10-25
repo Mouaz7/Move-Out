@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Box</title>
+    <link rel="stylesheet" href="/style/style.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header,
+        footer {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #007bff;
+            font-size: 2.5rem;
+            text-align: center;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .label-images {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .label-images img {
+            width: 100px;
+            height: auto;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .label-images img.selected {
+            border-color: #007bff;
+        }
+
+        #contentInput {
+            margin-bottom: 15px;
+        }
+
+        #pinField {
+            display: none;
+            margin-bottom: 15px;
+        }
+    </style>
+    <script>
+        let generatedOtp;
+
+        function togglePinField() {
+            const isPrivate = document.getElementById("isPrivate").value === "1";
+            const pinField = document.getElementById("pinField");
+
+            pinField.style.display = isPrivate ? "block" : "none";
+
+            if (isPrivate) {
+                const pinCode = Math.floor(100000 + Math.random() * 900000).toString();
+                generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                document.getElementById("pinCode").value = pinCode;
+                console.log("Generated OTP:", generatedOtp);
+            } else {
+                document.getElementById("pinCode").value = "";
+            }
+        }
+
+        function selectLabelImage(imageUrl,value) {
+            const images = document.querySelectorAll('.label-images img');
+            images.forEach(img => img.classList.remove('selected'));
+            const selectedImage = document.querySelector(`img[src="${imageUrl}"]`);
+            if (selectedImage) {
+                selectedImage.classList.add('selected');
+            }
+            document.getElementById('label_image').value = value;
+        }
+
+       function showContentInput() {
+        const contentType = document.getElementById('contentType').value;
+        const contentInput = document.getElementById('contentInput');
+        const contentData = '<%= box.content_data %>';
+
+        contentInput.innerHTML = ''; // Clear previous content
+
+        if (contentType === 'text') {
+            contentInput.innerHTML = `
+                <label for="contentText">Update Text Content:</label>
+                <textarea id="contentText" name="content_data" rows="4">${contentData}</textarea>`;
+        } else if (contentType === 'image' || contentType === 'audio') {
+            contentInput.innerHTML = `
+                <label for="contentFile">Update ${contentType.charAt(0).toUpperCase() + contentType.slice(1)}:</label>
+                <input type="file" id="contentFile" name="contentFile" accept="${contentType}/*">
+                <input type="hidden" name="content_data" value="${contentData}">`;
+        }
+
+        contentInput.style.display = 'block';
+    }
+
+        window.onload = function () {
+            document.getElementById('contentType').addEventListener('change', showContentInput);
+            document.getElementById('isPrivate').addEventListener('change', togglePinField);
+            showContentInput();
+            togglePinField();
+        };
+    </script>
+</head>
+
+<body>
+    <%- include("../partials/header") %>
+    <div class="container">
+        <h1>Edit Box</h1>
+        <form action="/move/boxes/edit/<%= box.box_id %>" method="POST" enctype="multipart/form-data">
+            <label for="boxName">Box Name:</label>
+            <input type="text" id="boxName" name="boxName" value="<%= box.box_name %>" required>
+
+            <label for="labelDesign">Label Name:</label>
+            <select id="labelDesign" name="label_name" required>
+                <option value="hazard" <%= (box.label_name === 'hazard') ? 'selected' : '' %>>Hazard</option>
+                <option value="normal" <%= (box.label_name === 'normal') ? 'selected' : '' %>>Normal</option>
+                <option value="fragile" <%= (box.label_name === 'fragile') ? 'selected' : '' %>>Fragile</option>
+            </select>
+
+            <label for="isPrivate">Update Privacy Status:</label>
+            <select id="isPrivate" name="isPrivate" required>
+                <option value="1" <%= box.is_private === 1 ? 'selected' : '' %>>Private</option>
+                <option value="0" <%= box.is_private === 0 ? 'selected' : '' %>>Public</option>
+            </select>
+
+            <div id="pinField">
+                <label for="pinCode">PIN Code (Auto-generated for private labels):</label>
+                <input type="text" id="pinCode" name="pinCode" readonly>
+            </div>
+
+            <label for="labelImage">Label Image:</label>
+            <div class="label-images">
+                <div class="label-option" data-value="labe1.png" onclick="selectLabelImage('/style/images/labe1.png','labe1.png')">
+                    <img src="/style/images/labe1.png" alt="Label 1" class="<%= box.label_image === 'labe1.png' ? 'selected' : '' %>" />
+                </div>
+                <div class="label-option" data-value="labe2.png" onclick="selectLabelImage('/style/images/labe2.png','labe2.png')">
+                    <img src="/style/images/labe2.png" alt="Label 2" class="<%= box.label_image === 'labe2.png' ? 'selected' : '' %>" />
+                </div>
+                <div class="label-option" data-value="labe3.png" onclick="selectLabelImage('/style/images/labe3.png','labe3.png')">
+                    <img src="/style/images/labe3.png" alt="Label 3" class="<%= box.label_image === 'labe3.png' ? 'selected' : '' %>" />
+                </div>
+            </div>
+            <input type="hidden" id="label_image" name="labelImage" value="<%= box.label_image %>">
+
+            <label for="labelImageInput">Upload a Custom Label Image:</label>
+            <input type="file" name="labelImageFile" id="labelImageInputs" accept="image/*">
+
+            <label for="contentType">Content Type:</label>
+            <select name="contentType" id="contentType" required>
+                <option value="text" <%= box.content_type === 'text' ? 'selected' : '' %>>Text</option>
+                <option value="image" <%= box.content_type === 'image' ? 'selected' : '' %>>Image</option>
+                <option value="audio" <%= box.content_type === 'audio' ? 'selected' : '' %>>Audio</option>
+            </select>
+
+            <div id="contentInput">
+                <!-- Content Input Field will be dynamically updated -->
+            </div>
+
+            <button type="submit">Update Box</button>
+        </form>
+    </div>
+    <%- include("../partials/footer") %>
+</body>
+
+</html>

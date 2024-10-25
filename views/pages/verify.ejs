@@ -1,0 +1,132 @@
+<%- include("../partials/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title || "Verify Your Account" %></title>
+    <% if (verified) { %>
+    <!-- Auto-redirect after 5 seconds -->
+    <meta http-equiv="refresh" content="5;url=/move/about" />
+    <% } %>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        color: #333;
+      }
+
+      header,
+      footer {
+        width: 100%;
+        padding: 10px 0;
+        text-align: center;
+      }
+
+      .main-content {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #007bff;
+      }
+
+      form {
+        margin-top: 20px;
+      }
+
+      label {
+        display: block;
+        text-align: left;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      input[type="email"],
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      .message {
+        font-size: 16px;
+        margin: 15px 0;
+      }
+
+      .success {
+        color: #28a745;
+      }
+
+      .error {
+        color: #dc3545;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-content">
+      <div class="container">
+        <h1>Verify Your Account</h1>
+
+        <% if (successMessage) { %>
+        <p class="message success"><%= successMessage %></p>
+        <% } %> <% if (!verified) { %>
+        <form action="/move/verify-code" method="POST">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required value="<%= email %>" readonly />
+
+          <label for="verificationCode">Verification Code:</label>
+          <input type="text" id="verificationCode" name="verificationCode" required />
+
+          <button type="submit">Verify</button>
+        </form>
+        <% } %> <% if (errorMessage) { %>
+        <p class="message error"><%= errorMessage %></p>
+        <% } %>
+      </div>
+    </div>
+  </body>
+</html>
+
+<%- include("../partials/footer") %>

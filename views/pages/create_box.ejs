@@ -1,0 +1,220 @@
+<%- include("../partials/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create a New Box</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+      .container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        max-width: 650px;
+        width: 100%;
+      }
+
+      h1 {
+        font-size: 24px;
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #555;
+      }
+
+      input[type="text"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      input[type="text"]:focus,
+      select:focus,
+      textarea:focus {
+        border-color: #007bff;
+      }
+
+      .label-options {
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        box-shadow: none;
+      }
+
+      .label-option {
+        flex: 1;
+        padding: 10px;
+        border-radius: 5px;
+        transition: border-color 0.3s ease;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .label-option img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+      }
+
+      .label-option.selected {
+        border: 3px solid #007bff;
+      }
+
+      .form-group.small-text {
+        font-size: 12px;
+        color: #888;
+      }
+
+      #pinField {
+        display: none;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-top: 10px;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #0056b3;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 20px;
+        }
+      }
+    </style>
+
+    <script>
+      function selectLabelImage(label) {
+        document.querySelectorAll(".label-option").forEach((option) => {
+          option.classList.remove("selected");
+        });
+        label.classList.add("selected");
+        document.getElementById("labelImageInput").value = label.dataset.value;
+      }
+
+      function showContentInput() {
+        const contentType = document.getElementById("contentType").value;
+        document.getElementById("textInput").style.display = contentType === "text" ? "block" : "none";
+        document.getElementById("fileInput").style.display = contentType === "image" || contentType === "audio" ? "block" : "none";
+      }
+
+      function togglePinField() {
+        const isPrivate = document.getElementById("isPrivate").checked;
+        const pinField = document.getElementById("pinField");
+        pinField.style.display = isPrivate ? "block" : "none";
+
+        if (isPrivate) {
+          document.getElementById("pinCode").value = Math.floor(100000 + Math.random() * 900000).toString();
+        } else {
+          document.getElementById("pinCode").value = "";
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Create a New Box</h1>
+      <form action="/move/boxes/create" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="boxName">Box Name</label>
+          <input type="text" name="boxName" id="boxName" placeholder="Enter box name" required />
+        </div>
+
+        <div class="form-group">
+          <label>Select Label Image</label>
+          <div class="label-options">
+            <div class="label-option" data-value="labe1.png" onclick="selectLabelImage(this)">
+              <img src="/style/images/labe1.png" alt="Label 1" />
+            </div>
+            <div class="label-option" data-value="labe2.png" onclick="selectLabelImage(this)">
+              <img src="/style/images/labe2.png" alt="Label 2" />
+            </div>
+            <div class="label-option" data-value="labe3.png" onclick="selectLabelImage(this)">
+              <img src="/style/images/labe3.png" alt="Label 3" />
+            </div>
+          </div>
+          <input type="hidden" name="labelImage" id="labelImageInput" required />
+          <div class="form-group">
+            <label for="labelImageFile">Upload a Custom Label Image</label>
+            <input type="file" name="labelImageFile" id="customLabelImage" accept="image/*" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="labelName">Label Name</label>
+          <select name="labelName" id="labelName" required>
+            <option value="" disabled selected>Select label name</option>
+            <option value="normal">Normal</option>
+            <option value="hazard">Hazard</option>
+            <option value="fragile">Fragile</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="isPrivate"><input type="checkbox" name="isPrivate" id="isPrivate" onchange="togglePinField()" /> Make this label private</label>
+        </div>
+
+        <div id="pinField" class="form-group">
+          <label for="pinCode">PIN Code</label>
+          <input type="text" name="pinCode" id="pinCode" readonly />
+          <small>Note: This PIN is automatically generated for private labels.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="contentType">Select Content Type</label>
+          <select name="contentType" id="contentType" onchange="showContentInput()" required>
+            <option value="" disabled selected>Select content type</option>
+            <option value="text">Text</option>
+            <option value="image">Image</option>
+            <option value="audio">Audio</option>
+          </select>
+        </div>
+
+        <div id="textInput" class="form-group" style="display: none">
+          <label for="contentText">Enter Text Content</label>
+          <textarea name="contentText" id="contentText" rows="4" placeholder="Enter text content"></textarea>
+        </div>
+
+        <div id="fileInput" class="form-group" style="display: none">
+          <label for="contentFile">Upload File</label>
+          <input type="file" name="contentFile" id="contentFile" accept="image/*,audio/*" />
+        </div>
+
+        <button type="submit">Create Box</button>
+      </form>
+    </div>
+  </body>
+</html>
+
+<%- include("../partials/footer") %>

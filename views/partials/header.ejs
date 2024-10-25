@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= title %></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style/style.css" />
+    <link rel="icon" href="/public/style/favicon.ico" type="image/x-icon" />
+    <style>
+      /* Basic Reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f8f9fa;
+        line-height: 1.6;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      /* Header styles */
+      header {
+        background-color: #343a40;
+        padding: 10px 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      /* Main content area */ 
+      main {
+        flex: 1;
+        padding: 20px;
+      }
+
+      /* Footer styles */
+      footer {
+        background-color: #343a40;
+        color: #ffffff;
+        text-align: center;
+        padding: 15px;
+      }
+
+      /* Navbar layout */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Logo with Carton Icon */
+      .logo {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+
+      /* Carton Box Animation */
+      .carton {
+        width: 40px;
+        height: 40px;
+        background-color: #d1b66d;
+        position: relative;
+        animation: spin 4s linear infinite;
+      }
+
+      @keyframes spin {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        25% {
+          transform: translateY(-10px) rotate(10deg);
+        }
+        50% {
+          transform: translateY(0) rotate(0deg);
+        }
+        75% {
+          transform: translateY(10px) rotate(-10deg);
+        }
+      }
+
+      .logo a {
+        color: #343a40;
+        font-size: 24px;
+        font-weight: bold;
+        text-decoration: none;
+        letter-spacing: 2px;
+        margin-left: 10px;
+      }
+
+      /* Navigation Menu */
+      .nav-menu {
+        display: flex;
+        align-items: center;
+      }
+
+      .nav-menu li {
+        list-style: none;
+        margin: 0 15px;
+        white-space: nowrap;
+      }
+
+      .nav-menu li a {
+        color: #ffffff;
+        text-decoration: none;
+        padding: 10px 15px;
+        font-size: 16px;
+        font-weight: 500;
+        transition: color 0.3s, background-color 0.3s;
+      }
+
+      .nav-menu li a:hover {
+        color: #f39c12;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+      }
+
+      /* Hamburger Menu */
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+      }
+
+      .hamburger span {
+        width: 28px;
+        height: 3px;
+        background-color: #ffffff;
+        margin: 5px 0;
+        border-radius: 2px;
+      }
+
+      /* Mobile Menu */
+      @media (max-width: 768px) {
+        .nav-menu {
+          position: absolute;
+          top: 70px;
+          left: -100%;
+          width: 100%;
+          background-color: #343a40;
+          flex-direction: column;
+          text-align: center;
+          transition: left 0.4s ease;
+        }
+
+        .nav-menu.active {
+          left: 0;
+        }
+
+        .nav-menu li {
+          margin: 10px 0;
+        }
+
+        .hamburger {
+          display: flex;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <!-- Logo with Carton Icon -->
+        <div class="logo">
+          <div class="carton"></div>
+          <a href="/move/about">MoveOut</a>
+        </div>
+        <!-- Navigation Menu -->
+        <ul class="nav-menu">
+          <li><a href="/move/about">About</a></li>
+          <% if (user && user?.isAdmin) { %>
+          <!-- If the user is logged in and is an admin -->
+          <li><a href="/move/admin/user">Admin</a></li>
+          <% } %> <% if (user) { %>
+          <!-- If the user is logged in -->
+          <li><a href="/move/profile">Profile</a></li>
+          <li><a href="/move/boxes">My Boxes</a></li>
+          <li><a href="/move/boxes/create">Add Box</a></li>
+          <li><a href="/move/logout">Logout</a></li>
+          <% } else { %>
+          <!-- If the user is not logged in -->
+          <li><a href="/move/login">Login</a></li>
+          <li><a href="/move/register">Register</a></li>
+          <% } %>
+        </ul>
+        <!-- Hamburger Menu Icon -->
+        <div class="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+    <script>
+      const hamburger = document.querySelector(".hamburger");
+      const navMenu = document.querySelector(".nav-menu");
+
+      hamburger.addEventListener("click", () => {
+        navMenu.classList.toggle("active");
+      });
+    </script>
+  </body>
+</html>

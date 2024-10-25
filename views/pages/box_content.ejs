@@ -1,0 +1,131 @@
+<%- include("../partials/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Box Details</title>
+    <link rel="stylesheet" href="/style/style.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        box-shadow: none;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        width: calc(100% - 20px);
+        box-shadow: none;
+      }
+
+      .qr-header {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 2rem;
+        box-shadow: none;
+      }
+
+      .box-details {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        box-shadow: none;
+      }
+
+      .details-section {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: none;
+      }
+
+      .label-image img {
+        max-width: 100%;
+        height: auto;
+        box-shadow: none;
+      }
+
+      .qr-code {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        overflow: hidden;
+        box-shadow: none;
+      }
+
+      .qr-code img {
+        max-width: 150px;
+        height: auto;
+        box-shadow: none;
+      }
+
+      .info-message {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #555;
+        text-align: center;
+        box-shadow: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="qr-header">Box Details</h1>
+      <div class="box-details">
+        <div class="details-section">
+          <h3>Box Name:</h3>
+          <p><%= box.box_name %></p>
+        </div>
+
+        <div class="details-section">
+          <h3>Label Image Type:</h3>
+          <p><%= box.label_name ? box.label_name.charAt(0).toUpperCase() + box.label_name.slice(1) : "No Label" %></p>
+          <div class="label-image">
+            <img src="/style/images/<%= box.label_image %>" alt="Label Image" class="label-img" />
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3>Content Type:</h3>
+          <p><%= box.content_type.charAt(0).toUpperCase() + box.content_type.slice(1) %></p>
+        </div>
+
+        <div class="qr-privacy-section">
+          <h3>Privacy Status:</h3>
+          <p><%= box.is_private === 1 ? "Private" : "Public" %></p>
+        </div>
+
+        <div class="details-section">
+          <h3>QR Code:</h3>
+          <div class="qr-code" id="qrCode">
+            <img src="<%= box.qr_code %>" alt="QR Code" />
+            <div class="info-message">Click the QR Code to download it</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const qrCodeElement = document.getElementById("qrCode");
+
+      // Allow download on click
+      qrCodeElement.addEventListener("click", function () {
+        const link = document.createElement("a");
+        link.href = "<%= box.qr_code %>";
+        link.download = "QR_Code.png"; // Default filename
+        link.click();
+      });
+    </script>
+  </body>
+</html>
+
+<%- include("../partials/footer") %>

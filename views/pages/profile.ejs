@@ -1,0 +1,149 @@
+<%- include("../partials/header") %>
+
+<style>
+  body {
+    font-family: Arial, sans-serif; /* Set a default font */
+    margin: 0;
+    padding: 0;
+  }
+
+  .profile-container {
+    background-color: #f8f9fa; /* Light background for the entire container */
+    padding: 40px; /* Added padding for better spacing */
+    display: flex;
+    justify-content: center;
+  }
+
+  .card {
+    background-color: #ffffff; /* Ensure background is white */
+    border-radius: 8px; /* Slightly rounded corners */
+    border: 1px solid #dee2e6; /* Light border for better definition */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+    padding: 20px; /* Padding inside card */
+    width: 100%; /* Full width */
+    max-width: 600px; /* Max width for better layout */
+  }
+
+  h2 {
+    text-align: center; /* Center titles */
+    margin-bottom: 20px; /* Spacing below titles */
+  }
+
+  .btn {
+    padding: 10px 15px; /* Button padding */
+    border: none; /* Remove border */
+    color: white; /* Text color */
+    border-radius: 5px; /* Rounded corners for buttons */
+    width: 100%; /* Full width */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s; /* Transition effect */
+  }
+
+  .btn-danger {
+    background-color: #dc3545; /* Red button for deactivation */
+  }
+
+  .btn-danger:hover {
+    background-color: #c82333; /* Darker red on hover */
+  }
+
+  .btn-primary {
+    background-color: #007bff; /* Primary color for update */
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+
+  .alert {
+    border-radius: 5px; /* Rounded alerts */
+    padding: 10px; /* Padding inside alert */
+    margin: 10px 0; /* Spacing above and below alerts */
+  }
+
+  .alert-danger {
+    background-color: #f8d7da; /* Light red background */
+    color: #721c24; /* Darker red text */
+  }
+
+  .alert-success {
+    background-color: #d4edda; /* Light green background */
+    color: #155724; /* Dark green text */
+  }
+
+  .form-label {
+    font-weight: bold; /* Bold labels for better visibility */
+    margin-bottom: 5px; /* Spacing below labels */
+  }
+
+  .form-control {
+    width: 100%; /* Full width for input fields */
+    padding: 10px; /* Padding inside input fields */
+    margin-bottom: 15px; /* Spacing below input fields */
+    border: 1px solid #ced4da; /* Border for input fields */
+    border-radius: 5px; /* Rounded corners for input fields */
+    box-sizing: border-box; /* Ensure consistent sizing */
+    height: 40px; /* Set a fixed height for uniformity */
+  }
+
+  .text-muted {
+    color: #6c757d; /* Muted text color */
+  }
+</style>
+
+<div class="profile-container">
+  <div class="card">
+    <h2>Profile Overview</h2>
+    <div class="static-info">
+      <p><strong>User Name:</strong> <span class="text-muted"><%= user.profileName %></span></p>
+      <p><strong>Email:</strong> <span class="text-muted"><%= user.email %></span></p>
+    </div>
+    <form action="/move/profile/deactivate" method="POST" onsubmit="return confirm('Are you sure you want to deactivate your account?');">
+      <button type="submit" class="btn btn-danger">Deactivate Account</button>
+    </form>
+
+    <h2>Update Profile</h2>
+    <!-- Display Error or Success Messages -->
+    <% if (errorMessage) { %>
+    <div class="alert alert-danger"><%= errorMessage %></div>
+    <% } %> <% if (successMessage) { %>
+    <div class="alert alert-success"><%= successMessage %></div>
+    <% } %>
+
+    <form id="updateProfileForm" action="/move/profile/update" method="POST" class="form-profile-update">
+      <label for="profileName" class="form-label">Name</label>
+      <input type="text" id="profileName" name="profileName" class="form-control" value="<%= user.profileName %>" required />
+
+      <label for="email" class="form-label">Email</label>
+      <input type="email" id="email" name="email" class="form-control" value="<%= user.email %>" required readonly />
+
+      <label for="currentPassword" class="form-label">Current Password</label>
+      <input type="password" id="currentPassword" name="currentPassword" class="form-control" placeholder="Enter Current Password" required />
+
+      <label for="newPassword" class="form-label">New Password</label>
+      <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter New Password (optional)" />
+      <small class="text-muted">Leave blank if you do not wish to change the password.</small>
+
+      <button type="submit" class="btn btn-primary">Update Profile</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Set a timeout for hiding error and success messages after page load
+  window.addEventListener("load", function () {
+    setTimeout(() => {
+      const errorAlert = document.querySelector(".alert-danger");
+      const successAlert = document.querySelector(".alert-success");
+
+      if (errorAlert) {
+        errorAlert.style.display = "none";
+      }
+      if (successAlert) {
+        successAlert.style.display = "none";
+      }
+    }, 3000);
+  });
+</script>
+
+<%- include("../partials/footer") %>

@@ -1,0 +1,54 @@
+<%- include("../partials/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enter PIN - MoveOut</title>
+    <link rel="stylesheet" href="/style/style.css" />
+
+    <style>
+      .error-message {
+        color: #ff4d4f; /* Bright red color for the error */
+        font-size: 16px; /* Font size */
+        text-align: center; /* Center-align the message */
+        visibility: visible; /* Initially visible */
+      }
+      .error-message.hidden {
+        display: none; /* Make it disappear suddenly after 3 seconds */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Enter PIN</h1>
+      <p>Please enter the 6-digit PIN to access the content for this box.</p>
+
+      <form action="/move/boxes/qr/validate-pin/<%= box.access_token %>" method="POST" aria-label="PIN Code Validation Form">
+        <div class="form-group">
+          <% if (errorMessage) { %>
+          <p class="error-message" id="errorMessage" role="alert"><%= errorMessage %></p>
+          <% } %>
+          <label for="pinCode">PIN Code:</label>
+          <input type="text" name="pinCode" id="pinCode" maxlength="6" pattern="\d{6}" placeholder="Enter 6-digit PIN" required aria-required="true" aria-invalid="<%= errorMessage ? 'true' : 'false' %>" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+
+    <script>
+      // Check if errorMessage exists
+      const errorMessage = document.getElementById("errorMessage");
+      if (errorMessage) {
+        // After 3 seconds, hide the error message suddenly
+        setTimeout(() => {
+          errorMessage.classList.add("hidden");
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>
+
+<%- include("../partials/footer") %>
