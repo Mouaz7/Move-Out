@@ -72,7 +72,7 @@ To run the MoveOut project locally, follow these steps:
 
 3. **Clone the repository**:
    ```bash
-   git clone https://github.com/Abdallah699/moveout.git
+   git clone https://github.com/Mouaz7/moveout.git
    cd moveout
    ```
 
@@ -97,15 +97,14 @@ To run the MoveOut project locally, follow these steps:
 
    Update `config.json` with your local hostname and credentials:
    ```json
-   {
-       "host": "localhost",
-       "user": "dbadm",
-       "password": "P@ssw0rd",
-       "database": "moveOut",
-       "multipleStatements": true,
-       "googleClientID": "YOUR_ACTUAL_GOOGLE_CLIENT_ID",
-       "googleClientSecret": "YOUR_ACTUAL_GOOGLE_CLIENT_SECRET"
-   }
+    {
+        "host": "localhost",
+        "user": "dbadm",
+        "password": "P@ssw0rd",
+        "database": "moveout",
+        "connectionLimit": 10,
+        "connectTimeout": 30000  
+    }
    ```
    Ensure your MariaDB username and password match the configuration.
 
@@ -116,7 +115,7 @@ To run the MoveOut project locally, follow these steps:
    npm start
    ```
 
-   Open the browser and visit `http://localhost:1339/login` to access the app.
+   Open the browser and visit `http://localhost:1338/login` to access the app.
 
 8. **Reset the Database**:
 
