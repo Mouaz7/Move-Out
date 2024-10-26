@@ -6,4 +6,4 @@ async function generateHash(password) {
   console.log("Hashed Password:", hashedPassword);
 }
 
-generateHash("Maxking12@");
+generateHash("Admin123@");

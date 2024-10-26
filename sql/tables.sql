@@ -36,8 +36,8 @@ CREATE TABLE users (
 -- Lägg till admin-användaren
 INSERT INTO users (email, password_hash, profile_name, is_verified, is_active, is_admin)
 VALUES (
-    'maxkingthe44@gmail.com',
-    '$2b$10$peG7MrIdD6Y5wr49/LZFROiTuBESat8eiXGpbcbr5vk1eJl5n4WCC',
+    'admin@moveout.com',
+    '$2a$10$3tBc/x9SqExfaf50ltT0Uu0EqPePiW4.bykTf80ai5I53hjiQ/TXG',
     'Admin User',
     TRUE,
     TRUE,
