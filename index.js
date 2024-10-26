@@ -55,6 +55,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(authRoutes); // Add the authRoutes to the app
 
+// Redirect root URL to /move
+app.get("/", (req, res) => {
+  res.redirect("/move");
+});
+
 // Set the path to views
 app.set("views", path.join(__dirname, "views/pages"));
 // Set the view engine to EJS
