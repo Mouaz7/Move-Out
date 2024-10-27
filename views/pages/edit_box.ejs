@@ -7,58 +7,35 @@
     <title>Edit Box</title>
     <link rel="stylesheet" href="/style/style.css">
     <script>
-        let generatedOtp;
+        function selectLabelImage(label) {
+            document.querySelectorAll(".label-option").forEach((option) => {
+                option.classList.remove("selected");
+            });
+            label.classList.add("selected");
+            document.getElementById("labelImageInput").value = label.dataset.value;
+        }
+
+        function showContentInput() {
+            const contentType = document.getElementById("contentType").value;
+            document.getElementById("textInput").style.display = contentType === "text" ? "block" : "none";
+            document.getElementById("fileInput").style.display = contentType === "image" || contentType === "audio" ? "block" : "none";
+        }
 
         function togglePinField() {
-            const isPrivate = document.getElementById("isPrivate").value === "1";
+            const isPrivate = document.getElementById("isPrivate").checked;
             const pinField = document.getElementById("pinField");
-
             pinField.style.display = isPrivate ? "block" : "none";
 
             if (isPrivate) {
-                const pinCode = Math.floor(100000 + Math.random() * 900000).toString();
-                generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-                document.getElementById("pinCode").value = pinCode;
-                console.log("Generated OTP:", generatedOtp);
+                document.getElementById("pinCode").value = Math.floor(100000 + Math.random() * 900000).toString();
             } else {
                 document.getElementById("pinCode").value = "";
             }
         }
 
-        function selectLabelImage(imageUrl,value) {
-            const images = document.querySelectorAll('.label-images img');
-            images.forEach(img => img.classList.remove('selected'));
-            const selectedImage = document.querySelector(`img[src="${imageUrl}"]`);
-            if (selectedImage) {
-                selectedImage.classList.add('selected');
-            }
-            document.getElementById('label_image').value = value;
-        }
-
-       function showContentInput() {
-        const contentType = document.getElementById('contentType').value;
-        const contentInput = document.getElementById('contentInput');
-        const contentData = '<%= box.content_data %>';
-
-        contentInput.innerHTML = ''; // Clear previous content
-
-        if (contentType === 'text') {
-            contentInput.innerHTML = `
-                <label for="contentText">Update Text Content:</label>
-                <textarea id="contentText" name="content_data" rows="4">${contentData}</textarea>`;
-        } else if (contentType === 'image' || contentType === 'audio') {
-            contentInput.innerHTML = `
-                <label for="contentFile">Update ${contentType.charAt(0).toUpperCase() + contentType.slice(1)}:</label>
-                <input type="file" id="contentFile" name="contentFile" accept="${contentType}/*">
-                <input type="hidden" name="content_data" value="${contentData}">`;
-        }
-
-        contentInput.style.display = 'block';
-    }
-
         window.onload = function () {
-            document.getElementById('contentType').addEventListener('change', showContentInput);
-            document.getElementById('isPrivate').addEventListener('change', togglePinField);
+            document.getElementById("contentType").addEventListener("change", showContentInput);
+            document.getElementById("isPrivate").addEventListener("change", togglePinField);
             showContentInput();
             togglePinField();
         };
@@ -70,53 +47,69 @@
     <div class="container">
         <h1>Edit Box</h1>
         <form action="/move/boxes/edit/<%= box.box_id %>" method="POST" enctype="multipart/form-data">
-            <label for="boxName">Box Name:</label>
-            <input type="text" id="boxName" name="boxName" value="<%= box.box_name %>" required>
-
-            <label for="labelDesign">Label Name:</label>
-            <select id="labelDesign" name="label_name" required>
-                <option value="hazard" <%= (box.label_name === 'hazard') ? 'selected' : '' %>>Hazard</option>
-                <option value="normal" <%= (box.label_name === 'normal') ? 'selected' : '' %>>Normal</option>
-                <option value="fragile" <%= (box.label_name === 'fragile') ? 'selected' : '' %>>Fragile</option>
-            </select>
-
-            <label for="isPrivate">Update Privacy Status:</label>
-            <select id="isPrivate" name="isPrivate" required>
-                <option value="1" <%= box.is_private === 1 ? 'selected' : '' %>>Private</option>
-                <option value="0" <%= box.is_private === 0 ? 'selected' : '' %>>Public</option>
-            </select>
-
-            <div id="pinField">
-                <label for="pinCode">PIN Code (Auto-generated for private labels):</label>
-                <input type="text" id="pinCode" name="pinCode" readonly>
+            <div class="form-group">
+                <label for="boxName">Box Name:</label>
+                <input type="text" id="boxName" name="boxName" value="<%= box.box_name %>" required>
             </div>
 
-            <label for="labelImage">Label Image:</label>
-            <div class="label-images">
-                <div class="label-option" data-value="labe1.png" onclick="selectLabelImage('/style/images/labe1.png','labe1.png')">
-                    <img src="/style/images/labe1.png" alt="Label 1" class="<%= box.label_image === 'labe1.png' ? 'selected' : '' %>" />
+            <div class="form-group">
+                <label>Select Label Image</label>
+                <div class="label-options">
+                    <div class="label-option" data-value="labe1.png" onclick="selectLabelImage(this)">
+                        <img src="/style/images/labe1.png" alt="Label 1" class="<%= box.label_image === 'labe1.png' ? 'selected' : '' %>">
+                    </div>
+                    <div class="label-option" data-value="labe2.png" onclick="selectLabelImage(this)">
+                        <img src="/style/images/labe2.png" alt="Label 2" class="<%= box.label_image === 'labe2.png' ? 'selected' : '' %>">
+                    </div>
+                    <div class="label-option" data-value="labe3.png" onclick="selectLabelImage(this)">
+                        <img src="/style/images/labe3.png" alt="Label 3" class="<%= box.label_image === 'labe3.png' ? 'selected' : '' %>">
+                    </div>
                 </div>
-                <div class="label-option" data-value="labe2.png" onclick="selectLabelImage('/style/images/labe2.png','labe2.png')">
-                    <img src="/style/images/labe2.png" alt="Label 2" class="<%= box.label_image === 'labe2.png' ? 'selected' : '' %>" />
-                </div>
-                <div class="label-option" data-value="labe3.png" onclick="selectLabelImage('/style/images/labe3.png','labe3.png')">
-                    <img src="/style/images/labe3.png" alt="Label 3" class="<%= box.label_image === 'labe3.png' ? 'selected' : '' %>" />
+                <input type="hidden" name="labelImage" id="labelImageInput" value="<%= box.label_image %>" required>
+                <div class="form-group">
+                    <label for="labelImageFile">Upload a Custom Label Image</label>
+                    <input type="file" name="labelImageFile" id="labelImageFile" accept="image/*">
                 </div>
             </div>
-            <input type="hidden" id="label_image" name="labelImage" value="<%= box.label_image %>">
 
-            <label for="labelImageInput">Upload a Custom Label Image:</label>
-            <input type="file" name="labelImageFile" id="labelImageInputs" accept="image/*">
+            <div class="form-group">
+                <label for="labelName">Label Name:</label>
+                <select id="labelName" name="label_name" required>
+                    <option value="normal" <%= box.label_name === 'normal' ? 'selected' : '' %>>Normal</option>
+                    <option value="hazard" <%= box.label_name === 'hazard' ? 'selected' : '' %>>Hazard</option>
+                    <option value="fragile" <%= box.label_name === 'fragile' ? 'selected' : '' %>>Fragile</option>
+                </select>
+            </div>
 
-            <label for="contentType">Content Type:</label>
-            <select name="contentType" id="contentType" required>
-                <option value="text" <%= box.content_type === 'text' ? 'selected' : '' %>>Text</option>
-                <option value="image" <%= box.content_type === 'image' ? 'selected' : '' %>>Image</option>
-                <option value="audio" <%= box.content_type === 'audio' ? 'selected' : '' %>>Audio</option>
-            </select>
+            <div class="form-group">
+                <label for="isPrivate">
+                    <input type="checkbox" name="isPrivate" id="isPrivate" value="1" <%= box.is_private ? 'checked' : '' %> onchange="togglePinField()"> Make this label private
+                </label>
+            </div>
 
-            <div id="contentInput">
-                <!-- Content Input Field will be dynamically updated -->
+            <div id="pinField" class="form-group" style="display: none;">
+                <label for="pinCode">PIN Code</label>
+                <input type="text" name="pinCode" id="pinCode" readonly>
+                <small>Note: This PIN is automatically generated for private labels.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="contentType">Select Content Type</label>
+                <select name="contentType" id="contentType" onchange="showContentInput()" required>
+                    <option value="text" <%= box.content_type === 'text' ? 'selected' : '' %>>Text</option>
+                    <option value="image" <%= box.content_type === 'image' ? 'selected' : '' %>>Image</option>
+                    <option value="audio" <%= box.content_type === 'audio' ? 'selected' : '' %>>Audio</option>
+                </select>
+            </div>
+
+            <div id="textInput" class="form-group" style="display: none;">
+                <label for="contentText">Update Text Content</label>
+                <textarea id="contentText" name="content_data" rows="4"><%= box.content_data %></textarea>
+            </div>
+
+            <div id="fileInput" class="form-group" style="display: none;">
+                <label for="contentFile">Update File</label>
+                <input type="file" id="contentFile" name="contentFile" accept="image/*,audio/*">
             </div>
 
             <button type="submit">Update Box</button>
