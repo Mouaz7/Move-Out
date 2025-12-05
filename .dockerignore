@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.env
+.env.*
+coverage
+*.log
+.git
+.gitignore
+tests
+*.md
+.vscode
+logs
+.gemini

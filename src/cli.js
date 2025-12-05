@@ -1,6 +1,6 @@
 "use strict";
-const mysql = require("mysql2/promise"); // Uppdaterat från 'promise-mysql' till 'mysql2/promise'
-const bcrypt = require("bcryptjs");
+const { pool, getConnection } = require("../config/db/database");
+const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
@@ -8,23 +8,8 @@ const path = require("path");
 const moment = require("moment");
 require("dotenv").config();
 const QRCode = require("qrcode");
-const dbConfig = require("../config/db/move.json"); // Se till att denna fil innehåller dina databasuppgifter
 
-// Skapa en anslutningspool
-const pool = mysql.createPool(dbConfig);
-
-// Behåll 'getConnection' funktionen men uppdatera den för att använda poolen
-async function getConnection() {
-  try {
-    const connection = await pool.getConnection();
-    return connection;
-  } catch (error) {
-    console.error("Database connection failed:", error);
-    throw error;
-  }
-}
-
-// Konfigurera nodemailer för e-post
+// Configure nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -33,7 +18,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Funktion för att skicka verifieringsmail
+// Send verification email
 async function sendVerificationEmail(toEmail, token) {
   const baseUrl = process.env.BASE_URL || "http://localhost:1338";
   const verificationLink = `${baseUrl}/verify-email?token=${token}`;
@@ -52,36 +37,34 @@ async function sendVerificationEmail(toEmail, token) {
   }
 }
 
-// Funktion för att skapa en ny användare
+// Create a new user
 async function createUser(name, email, password) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
+    client = await getConnection();
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const token = crypto.randomBytes(32).toString("hex");
 
-    await connection.query("INSERT INTO users (profile_name, email, password_hash, verification_token) VALUES (?, ?, ?, ?)", [name, email, hashedPassword, token]);
-
+    await client.query("INSERT INTO users (profile_name, email, password_hash, verification_token) VALUES ($1, $2, $3, $4)", [name, email, hashedPassword, token]);
     await sendVerificationEmail(email, token);
   } catch (error) {
     console.error("Error creating user:", error);
     throw new Error("Error creating user.");
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att verifiera användare
+// Verify user
 async function verifyUser(token) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
+    client = await getConnection();
+    const result = await client.query("SELECT * FROM users WHERE verification_token = $1", [token]);
 
-    const [results] = await connection.query("SELECT * FROM users WHERE verification_token = ?", [token]);
-
-    if (results.length > 0) {
-      await connection.query("UPDATE users SET is_verified = TRUE, verification_token = NULL WHERE verification_token = ?", [token]);
+    if (result.rows.length > 0) {
+      await client.query("UPDATE users SET is_verified = TRUE, verification_token = NULL WHERE verification_token = $1", [token]);
     } else {
       throw new Error("Verification token is invalid.");
     }
@@ -89,23 +72,22 @@ async function verifyUser(token) {
     console.error("Error verifying user:", error);
     throw new Error("Error verifying user.");
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att logga in användare
+// Login user
 async function loginUser(email, password) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
+    client = await getConnection();
+    const result = await client.query("SELECT * FROM users WHERE email = $1", [email]);
 
-    const [results] = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
-
-    if (results.length > 0) {
-      const user = results[0];
+    if (result.rows.length > 0) {
+      const user = result.rows[0];
       const isValid = await bcrypt.compare(password, user.password_hash);
       if (isValid) {
-        await connection.query("UPDATE users SET last_activity = CURRENT_TIMESTAMP WHERE user_id = ?", [user.user_id]);
+        await client.query("UPDATE users SET last_activity = CURRENT_TIMESTAMP WHERE user_id = $1", [user.user_id]);
         return { success: true, user: { id: user.user_id, profile_name: user.profile_name } };
       } else {
         return { success: false, message: "Invalid password." };
@@ -117,194 +99,113 @@ async function loginUser(email, password) {
     console.error("Error logging in:", error);
     throw new Error("Error during login.");
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att hämta alla användare
+// Get all users
 async function getAllUsers() {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    const [users] = await connection.query("SELECT user_id, email, profile_name, is_active, last_activity, created_at, storage_usage FROM users");
-    return users;
+    client = await getConnection();
+    const result = await client.query("SELECT user_id, email, profile_name, is_active, last_activity, created_at, storage_usage FROM users");
+    return result.rows;
   } catch (error) {
     console.error("Error fetching users:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att aktivera en användare
+// Activate user
 async function activateUser(userId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    await connection.query("UPDATE users SET is_active = TRUE WHERE user_id = ?", [userId]);
+    client = await getConnection();
+    await client.query("UPDATE users SET is_active = TRUE WHERE user_id = $1", [userId]);
   } catch (error) {
     console.error("Error activating user:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att inaktivera en användare
+// Deactivate user
 async function deactivateUser(userId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    await connection.query("UPDATE users SET is_active = FALSE WHERE user_id = ?", [userId]);
+    client = await getConnection();
+    await client.query("UPDATE users SET is_active = FALSE WHERE user_id = $1", [userId]);
   } catch (error) {
     console.error("Error deactivating user:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att växla användarstatus
+// Toggle user status
 async function toggleUserStatus(userId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    const [users] = await connection.query("SELECT is_active FROM users WHERE user_id = ?", [userId]);
-    const user = users[0];
+    client = await getConnection();
+    const result = await client.query("SELECT is_active FROM users WHERE user_id = $1", [userId]);
+    const user = result.rows[0];
     const newStatus = !user.is_active;
-    const now = new Date();
-    const currentTime = moment(now).format("YYYY-MM-DD HH:mm:ss");
-
-    await connection.query("UPDATE users SET is_active = ?, last_activity = ? WHERE user_id = ?", [newStatus, currentTime, userId]);
+    const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
+    await client.query("UPDATE users SET is_active = $1, last_activity = $2 WHERE user_id = $3", [newStatus, currentTime, userId]);
   } catch (error) {
     console.error("Error toggling user status:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// async function deleteUser(userId) {
-//   let connection;
-//   try {
-//     connection = await getConnection();
-
-//     const [boxes] = await connection.query("SELECT label_image, content_data FROM boxes WHERE user_id = ?", [userId]);
-
-//     boxes.forEach((box) => {
-//       const contentFile = box.content_data;
-
-//       if (contentFile) {
-//         const fileName = contentFile.trim();
-//         if (fileName) {
-//           const filePath = path.join(__dirname, "../uploads", `${fileName}`);
-
-//           console.log(`File to be deleted: ${filePath}`);
-
-//           fs.unlink(filePath, (err) => {
-//             if (err) {
-//               console.error(`Error deleting file: ${fileName}. It may not exist.`, err);
-//             } else {
-//               console.log(`File deleted successfully: ${fileName}`);
-//             }
-//           });
-//         } else {
-//           console.warn(`Could not extract file name from: ${contentFile}`);
-//         }
-//       } else {
-//         console.warn(`ContentFile is undefined or empty for box: ${JSON.stringify(box)}`);
-//       }
-//     });
-
-//     await connection.query("DELETE FROM boxes WHERE user_id = ?", [userId]);
-//     await connection.query("DELETE FROM users WHERE user_id = ?", [userId]);
-//     console.log(`Successfully deleted user with ID: ${userId} and associated files.`);
-//   } catch (error) {
-//     console.error("Error deleting user and related files:", error);
-//     throw error;
-//   } finally {
-//     if (connection) connection.release();
-//   }
-// }
-
+// Delete user
 async function deleteUser(userId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
+    client = await getConnection();
+    const result = await client.query("SELECT label_image, content_data FROM boxes WHERE user_id = $1", [userId]);
 
-    const [boxes] = await connection.query("SELECT label_image, content_data FROM boxes WHERE user_id = ?", [userId]);
-
-    // Check and delete label images
-    boxes.forEach((box) => {
-      const labelImage = box.label_image;
-
-      if (labelImage && labelImage.startsWith("labelImageFile")) {
-        const labelImagePath = path.join(__dirname, "../public/style/images", `${labelImage}`);
-
-        console.log(`Label image to be deleted: ${labelImagePath}`);
-
+    result.rows.forEach((box) => {
+      if (box.label_image && box.label_image.startsWith("labelImageFile")) {
+        const labelImagePath = path.join(__dirname, "../public/style/images", box.label_image);
         fs.unlink(labelImagePath, (err) => {
-          if (err) {
-            console.error(`Error deleting label image: ${labelImage}. It may not exist.`, err);
-          } else {
-            console.log(`Label image deleted successfully: ${labelImage}`);
-          }
+          if (err) console.error(`Error deleting label image: ${box.label_image}`, err);
         });
-      } else {
-        console.warn(`Label image does not start with 'labelImageFile' or is undefined for box: ${JSON.stringify(box)}`);
       }
-
-      // Handle content data files
-      const contentFile = box.content_data;
-
-      if (contentFile) {
-        const fileName = contentFile.trim();
-        if (fileName) {
-          const filePath = path.join(__dirname, "../uploads", `${fileName}`);
-
-          console.log(`File to be deleted: ${filePath}`);
-
-          fs.unlink(filePath, (err) => {
-            if (err) {
-              console.error(`Error deleting file: ${fileName}. It may not exist.`, err);
-            } else {
-              console.log(`File deleted successfully: ${fileName}`);
-            }
-          });
-        } else {
-          console.warn(`Could not extract file name from: ${contentFile}`);
-        }
-      } else {
-        console.warn(`ContentFile is undefined or empty for box: ${JSON.stringify(box)}`);
+      if (box.content_data) {
+        const filePath = path.join(__dirname, "../uploads", box.content_data.trim());
+        fs.unlink(filePath, (err) => {
+          if (err) console.error(`Error deleting file: ${box.content_data}`, err);
+        });
       }
     });
 
-    await connection.query("DELETE FROM boxes WHERE user_id = ?", [userId]);
-    await connection.query("DELETE FROM users WHERE user_id = ?", [userId]);
-    console.log(`Successfully deleted user with ID: ${userId} and associated files.`);
+    await client.query("DELETE FROM boxes WHERE user_id = $1", [userId]);
+    await client.query("DELETE FROM users WHERE user_id = $1", [userId]);
   } catch (error) {
-    console.error("Error deleting user and related files:", error);
+    console.error("Error deleting user:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
-// Funktion för att skicka marknadsföringsmail
-async function sendMarketingEmails(subject, message) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const [users] = await connection.query("SELECT email FROM users WHERE is_active = TRUE");
 
-    for (const user of users) {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: user.email,
-        subject,
-        text: message,
-      };
+// Send marketing emails
+async function sendMarketingEmails(subject, message) {
+  let client;
+  try {
+    client = await getConnection();
+    const result = await client.query("SELECT email FROM users WHERE is_active = TRUE");
+
+    for (const user of result.rows) {
       try {
-        await transporter.sendMail(mailOptions);
+        await transporter.sendMail({ from: process.env.EMAIL_USER, to: user.email, subject, text: message });
       } catch (error) {
         console.error(`Failed to send email to: ${user.email}`, error);
       }
@@ -313,48 +214,40 @@ async function sendMarketingEmails(subject, message) {
     console.error("Error sending marketing emails:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att inaktivera inaktiva användare
+// Deactivate inactive users
 async function deactivateInactiveUsers() {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
+    client = await getConnection();
     const oneMonthAgo = moment().subtract(1, "months").format("YYYY-MM-DD HH:mm:ss");
+    const result = await client.query("SELECT * FROM users WHERE last_activity < $1 AND is_active = TRUE", [oneMonthAgo]);
 
-    const [usersToDeactivate] = await connection.query("SELECT * FROM users WHERE last_activity < ? AND is_active = TRUE", [oneMonthAgo]);
-
-    if (usersToDeactivate.length === 0) {
-      return;
-    }
-
-    for (const user of usersToDeactivate) {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: user.email,
-        subject: "Account Deactivation Warning",
-        text: "Your account has been inactive for a month. Please log in to avoid deactivation.",
-      };
-
+    for (const user of result.rows) {
       try {
-        await transporter.sendMail(mailOptions);
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: user.email,
+          subject: "Account Deactivation Warning",
+          text: "Your account has been inactive for a month.",
+        });
       } catch (err) {
         console.error(`Failed to send email to: ${user.email}`, err);
       }
-
-      await connection.query("UPDATE users SET is_active = FALSE WHERE user_id = ?", [user.user_id]);
+      await client.query("UPDATE users SET is_active = FALSE WHERE user_id = $1", [user.user_id]);
     }
   } catch (error) {
     console.error("Error deactivating inactive users:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att generera QR-kod
+// Generate QR code
 async function generateQRCode(text) {
   try {
     return await QRCode.toDataURL(text);
@@ -364,215 +257,182 @@ async function generateQRCode(text) {
   }
 }
 
-// Funktion för att skapa en ny box
+// Create a new box
 async function createBox(userId, boxName, labelName, labelImage, contentType, contentText, contentFile, isPrivate, pinCode) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-
-    // Beroende på contentType, hantera innehållet
+    client = await getConnection();
     const contentData = contentType === "text" ? contentText : contentFile;
-
-    // Generera en unik access token
     const accessToken = crypto.randomBytes(16).toString("hex");
 
-    // Spara lådan i databasen
-    const [result] = await connection.query("INSERT INTO boxes (user_id, box_name, label_name, label_image, content_type, content_data, access_token,is_private, pin_code) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)", [userId, boxName, labelName, labelImage, contentType, contentData, accessToken, isPrivate, pinCode]);
-    const boxId = result.insertId;
+    const result = await client.query(
+      "INSERT INTO boxes (user_id, box_name, label_name, label_image, content_type, content_data, access_token, is_private, pin_code) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING box_id",
+      [userId, boxName, labelName, labelImage, contentType, contentData, accessToken, isPrivate, pinCode]
+    );
+    const boxId = result.rows[0].box_id;
 
-    // Skapa en URL för lådan
     const baseUrl = process.env.BASE_URL || "http://localhost:1338";
     const boxUrl = `${baseUrl}/move/boxes/qr/${accessToken}`;
-
-    // Generera QR-koden
     const qrCodeDataUrl = await generateQRCode(boxUrl);
 
-    // Uppdatera lådan med QR-koden
-    await connection.query("UPDATE boxes SET qr_code = ? WHERE box_id = ?", [qrCodeDataUrl, boxId]);
-
-    return boxId; // Returnera boxId så att det kan användas efter skapandet
+    await client.query("UPDATE boxes SET qr_code = $1 WHERE box_id = $2", [qrCodeDataUrl, boxId]);
+    return boxId;
   } catch (error) {
     console.error("Error creating box:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att hämta en box baserat på access token
+// Get box by token
 async function getBoxByToken(accessToken) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    const [rows] = await connection.query("SELECT * FROM boxes WHERE access_token = ?", [accessToken]);
-    return rows.length ? rows[0] : null;
+    client = await getConnection();
+    const result = await client.query("SELECT * FROM boxes WHERE access_token = $1", [accessToken]);
+    return result.rows.length ? result.rows[0] : null;
   } catch (error) {
     console.error("Error fetching box by token:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att hämta en box baserat på ID
+// Get box by ID
 async function getBoxById(boxId, userId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    const [rows] = await connection.query("SELECT * FROM boxes WHERE box_id = ? AND user_id = ?", [boxId, userId]);
-    return rows.length ? rows[0] : null;
+    client = await getConnection();
+    const result = await client.query("SELECT * FROM boxes WHERE box_id = $1 AND user_id = $2", [boxId, userId]);
+    return result.rows.length ? result.rows[0] : null;
   } catch (error) {
     console.error("Error fetching box by ID:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att hämta innehållet i en box
+// Get box contents
 async function getBoxContents(boxId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    const [contents] = await connection.query("SELECT * FROM box_contents WHERE box_id = ?", [boxId]);
-    return contents;
+    client = await getConnection();
+    const result = await client.query("SELECT * FROM box_contents WHERE box_id = $1", [boxId]);
+    return result.rows;
   } catch (error) {
     console.error("Error fetching box contents:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att lägga till innehåll i en box
+// Add box content
 async function addBoxContent(boxId, contentType, contentData, contentUrl) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    await connection.query("INSERT INTO box_contents (box_id, content_type, content_data, content_url) VALUES (?, ?, ?, ?)", [boxId, contentType, contentData, contentUrl]);
+    client = await getConnection();
+    await client.query("INSERT INTO box_contents (box_id, content_type, content_data, content_url) VALUES ($1, $2, $3, $4)", [boxId, contentType, contentData, contentUrl]);
   } catch (error) {
     console.error("Error adding box content:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att hämta alla boxar för en användare
+// Get all boxes for a user
 async function getAllBoxes(userId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    const [boxes] = await connection.query("SELECT * FROM boxes WHERE user_id = ?", [userId]);
-    return boxes;
+    client = await getConnection();
+    const result = await client.query("SELECT * FROM boxes WHERE user_id = $1", [userId]);
+    return result.rows;
   } catch (error) {
     console.error("Error fetching boxes:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att uppdatera en box
+// Update box
 async function updateBox(boxId, userId, boxName, labelDesign) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    await connection.query("UPDATE boxes SET box_name = ?, label_design = ? WHERE box_id = ? AND user_id = ?", [boxName, labelDesign, boxId, userId]);
+    client = await getConnection();
+    await client.query("UPDATE boxes SET box_name = $1, label_design = $2 WHERE box_id = $3 AND user_id = $4", [boxName, labelDesign, boxId, userId]);
   } catch (error) {
     console.error("Error updating box:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att ta bort en box
+// Delete box
 async function deleteBox(boxId, userId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    await connection.query("DELETE FROM boxes WHERE box_id = ? AND user_id = ?", [boxId, userId]);
+    client = await getConnection();
+    await client.query("DELETE FROM boxes WHERE box_id = $1 AND user_id = $2", [boxId, userId]);
   } catch (error) {
     console.error("Error deleting box:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att skapa eller uppdatera en etikett
+// Create or update label
 async function createOrUpdateLabel(labelId, labelName, isPrivate, boxId) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
+    client = await getConnection();
     const pinCode = isPrivate ? generateSixDigitPin() : null;
 
     if (labelId) {
-      // Uppdatera befintlig etikett
-      await connection.query("UPDATE labels SET label_name = ?, is_private = ?, pin_code = ? WHERE label_id = ?", [labelName, isPrivate, pinCode, labelId]);
+      await client.query("UPDATE labels SET label_name = $1, is_private = $2, pin_code = $3 WHERE label_id = $4", [labelName, isPrivate, pinCode, labelId]);
     } else {
-      // Skapa ny etikett
-      const [result] = await connection.query("INSERT INTO labels (label_name, is_private, pin_code, box_id) VALUES (?, ?, ?, ?)", [labelName, isPrivate, pinCode, boxId]);
-      return result.insertId;
+      const result = await client.query("INSERT INTO labels (label_name, is_private, pin_code) VALUES ($1, $2, $3) RETURNING label_id", [labelName, isPrivate, pinCode]);
+      return result.rows[0].label_id;
     }
   } catch (error) {
     console.error("Error creating/updating label:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Funktion för att validera PIN-koden för en etikett
+// Validate label PIN
 async function validateLabelPin(labelId, pinCode) {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    const [rows] = await connection.query("SELECT * FROM labels WHERE label_id = ? AND pin_code = ? AND is_private = TRUE", [labelId, pinCode]);
-
-    return rows.length > 0;
+    client = await getConnection();
+    const result = await client.query("SELECT * FROM labels WHERE label_id = $1 AND pin_code = $2 AND is_private = TRUE", [labelId, pinCode]);
+    return result.rows.length > 0;
   } catch (error) {
     console.error("Error validating label PIN:", error);
     throw error;
   } finally {
-    if (connection) connection.release();
+    if (client) client.release();
   }
 }
 
-// Generera sexsiffrig PIN-kod
+// Generate six-digit PIN
 function generateSixDigitPin() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Exportera alla funktioner
 module.exports = {
-  // Användarfunktioner
-  createUser,
-  verifyUser,
-  loginUser,
-  getAllUsers,
-  activateUser,
-  deactivateUser,
-  toggleUserStatus,
-  deleteUser,
-  sendMarketingEmails,
-  sendVerificationEmail,
-  deactivateInactiveUsers,
-
-  // Boxfunktioner
-  createBox,
-  addBoxContent,
-  getBoxById,
-  getBoxByToken,
-  getAllBoxes,
-  getBoxContents,
-  updateBox,
-  deleteBox,
-
-  // Övriga funktioner
-  generateQRCode,
-  createOrUpdateLabel,
-  validateLabelPin,
-
+  createUser, verifyUser, loginUser, getAllUsers,
+  activateUser, deactivateUser, toggleUserStatus, deleteUser,
+  sendMarketingEmails, sendVerificationEmail, deactivateInactiveUsers,
+  createBox, addBoxContent, getBoxById, getBoxByToken,
+  getAllBoxes, getBoxContents, updateBox, deleteBox,
+  generateQRCode, createOrUpdateLabel, validateLabelPin,
 };

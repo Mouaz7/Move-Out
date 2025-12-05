@@ -1,7 +1,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const pool = require("./mysqlPool");
-const bcrypt = require("bcryptjs");
+const { pool, getConnection } = require("./database");
+const bcrypt = require("bcrypt");
 
 passport.use(
   new GoogleStrategy(
@@ -11,50 +11,49 @@ passport.use(
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async (accessToken, refreshToken, profile, done) => {
-      let connection;
+      let client;
       try {
         console.log("Google profile received:", profile);
-        connection = await pool.getConnection();
+        client = await getConnection();
 
-        // Kontrollera om användaren redan existerar
-        const [users] = await connection.query("SELECT * FROM users WHERE email = ?", [profile.emails[0].value]);
+        // Check if user exists
+        const result = await client.query("SELECT * FROM users WHERE email = $1", [profile.emails[0].value]);
 
-        if (users.length > 0) {
-          const user = users[0];
+        if (result.rows.length > 0) {
+          const user = result.rows[0];
 
-          // Kontrollera om användaren har ett lösenord
           if (!user.password_hash) {
             console.log("User found, but no password set.");
             return done(null, false, { message: "Please set your password." });
           }
 
           console.log("User found, proceeding with login.");
-          return done(null, user); // Användaren existerar och har ett lösenord
+          return done(null, user);
         } else {
-          // Skapa en ny användare i databasen
+          // Create new user
           const newUser = {
             email: profile.emails[0].value,
             profile_name: profile.displayName,
             is_verified: true,
-            password: "Googlexd@99", // Idealiskt ska lösenordet hashas
+            password: "Googlexd@99",
           };
 
           const salt = await bcrypt.genSalt(10);
           const hashedPassword = await bcrypt.hash(newUser.password, salt);
-          const [result] = await connection.query(
-            "INSERT INTO users (email, profile_name, is_verified, password_hash) VALUES (?, ?, ?, ?)",
+          const insertResult = await client.query(
+            "INSERT INTO users (email, profile_name, is_verified, password_hash) VALUES ($1, $2, $3, $4) RETURNING user_id",
             [newUser.email, newUser.profile_name, newUser.is_verified, hashedPassword]
           );
 
-          newUser.user_id = result.insertId; // Fäst det genererade användar-ID:t
+          newUser.user_id = insertResult.rows[0].user_id;
           console.log("New user created:", newUser);
-          return done(null, newUser); // Lyckades skapa ny användare
+          return done(null, newUser);
         }
       } catch (error) {
         console.error("Error in Google Strategy:", error);
         return done(error, false);
       } finally {
-        if (connection) connection.release(); // Släpp alltid anslutningen
+        if (client) client.release();
       }
     }
   )
@@ -66,15 +65,15 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  let connection;
+  let client;
   try {
     console.log("Deserializing user ID:", id);
-    connection = await pool.getConnection();
-    const [users] = await connection.query("SELECT * FROM users WHERE user_id = ?", [id]);
+    client = await getConnection();
+    const result = await client.query("SELECT * FROM users WHERE user_id = $1", [id]);
 
-    if (users.length > 0) {
-      console.log("User deserialized:", users[0]);
-      done(null, users[0]);
+    if (result.rows.length > 0) {
+      console.log("User deserialized:", result.rows[0]);
+      done(null, result.rows[0]);
     } else {
       console.log("User not found during deserialization.");
       done(null, false);
@@ -83,7 +82,7 @@ passport.deserializeUser(async (id, done) => {
     console.error("Error during deserialization:", error);
     done(error, false);
   } finally {
-    if (connection) connection.release(); // Släpp alltid anslutningen
+    if (client) client.release();
   }
 });
 

@@ -79,6 +79,9 @@ web_modules/
 .env.production.local
 .env.local
 
+# Database config (contains credentials)
+config/db/move.json
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

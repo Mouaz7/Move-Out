@@ -1,0 +1,293 @@
+// Mock all security middleware FIRST before requiring anything
+jest.mock("../../../middleware/csrfProtection", () => ({
+  csrfProtection: (req, res, next) => next(),
+  addCsrfToken: (req, res, next) => {
+    res.locals.csrfToken = "test-token";
+    next();
+  },
+}));
+
+jest.mock("../../../middleware/securityHeaders", () => (req, res, next) => next());
+
+jest.mock("../../../middleware/rateLimiter", () => ({
+  loginLimiter: (req, res, next) => next(),
+  registerLimiter: (req, res, next) => next(),
+  verificationLimiter: (req, res, next) => next(),
+  apiLimiter: (req, res, next) => next(),
+}));
+
+jest.mock("../../../config/db/move.json", () => ({
+  host: "localhost",
+  user: "test",
+  password: "test",
+  database: "test",
+}));
+
+// Global mock pool and connection that can be configured per test
+// MUST be prefixed with 'mock' for Jest to allow them in jest.mock()
+let mockGlobalPool;
+let mockGlobalConnection;
+
+jest.mock("mysql2/promise", () => ({
+  createPool: jest.fn(() => mockGlobalPool),
+}));
+
+jest.mock("bcryptjs");
+jest.mock("nodemailer", () => ({
+  createTransport: jest.fn(() => ({
+    sendMail: jest.fn((options, callback) => {
+      if (callback) callback(null, { messageId: "test" });
+      return Promise.resolve({ messageId: "test" });
+    }),
+  })),
+}));
+
+const request = require("supertest");
+const express = require("express");
+const session = require("express-session");
+const bcrypt = require("bcryptjs");
+const mysql = require("mysql2/promise");
+
+// Initialize global mock pool BEFORE loading routes
+mockGlobalConnection = {
+  query: jest.fn(),
+  release: jest.fn(),
+};
+
+mockGlobalPool = {
+  getConnection: jest.fn().mockResolvedValue(mockGlobalConnection),
+  query: jest.fn(),
+};
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: "test", resave: false, saveUninitialized: false }));
+
+// Mock render and redirect
+app.use((req, res, next) => {
+  const originalRender = res.render;
+  const originalRedirect = res.redirect;
+  
+  res.render = function (view, data) {
+    // Don't change status if already set
+    if (!res.statusCode || res.statusCode === 200) {
+      res.status(200);
+    }
+    return res.json({ view, ...data });
+  };
+  
+  res.redirect = function (url) {
+    return originalRedirect.call(this, url);
+  };
+  
+  next();
+});
+
+
+const indexRoutes = require("../../../routes/indexRoutes");
+app.use("/move", indexRoutes);
+
+describe("Authentication Routes", () => {
+  let mockPool, mockConnection;
+
+  beforeAll(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  beforeEach(() => {
+    // Reuse the global mocks and reset them
+    mockConnection = mockGlobalConnection;
+    mockPool = mockGlobalPool;
+    
+    // Reset all mock functions
+    mockConnection.query.mockReset();
+    mockConnection.release.mockReset();
+    mockPool.getConnection.mockReset().mockResolvedValue(mockConnection);
+    mockPool.query.mockReset();
+
+    // Setup bcrypt mocks
+    bcrypt.genSalt.mockReset();
+    bcrypt.hash.mockReset();
+    bcrypt.compare.mockReset();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe("POST /move/register", () => {
+    test("should register Gmail user successfully", async () => {
+      mockConnection.query
+        .mockResolvedValueOnce([[]])
+        .mockResolvedValueOnce([{ insertId: 1 }]);
+
+      bcrypt.genSalt.mockResolvedValue("salt");
+      bcrypt.hash.mockResolvedValue("hashed");
+
+      const res = await request(app).post("/move/register").send({
+        name: "Test User",
+        email: "test@gmail.com",
+        psw: "TestPass123!",
+        psw_repeat: "TestPass123!",
+      });
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe("/move/login");
+      expect(mockConnection.release).toHaveBeenCalled();
+    });
+
+    test("should reject weak password (middleware validation)", async () => {
+      const res = await request(app).post("/move/register").send({
+        name: "Test User",
+        email: "test@test.com",
+        psw: "weak",
+        psw_repeat: "weak",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errorMessage).toBeDefined();
+    });
+
+    test("should reject mismatched passwords (middleware validation)", async () => {
+      const res = await request(app).post("/move/register").send({
+        name: "Test User",
+        email: "test@test.com",
+        psw: "TestPass123!",
+        psw_repeat: "Different123!",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errorMessage).toBeDefined();
+    });
+
+    test("should reject duplicate email", async () => {
+      mockConnection.query.mockResolvedValueOnce([[{ email: "test@test.com" }]]);
+      bcrypt.genSalt.mockResolvedValue("salt");
+      bcrypt.hash.mockResolvedValue("hashed");
+
+      const res = await request(app).post("/move/register").send({
+        name: "Test User",
+        email: "test@test.com",
+        psw: "TestPass123!",
+        psw_repeat: "TestPass123!",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errorMessage).toContain("already registered");
+    });
+  });
+
+  describe("POST /move/login", () => {
+    test("should login with valid credentials", async () => {
+      const user = {
+        user_id: 1,
+        email: "test@test.com",
+        password_hash: "hashed",
+        profile_name: "Test",
+        is_active: true,
+        is_admin: false,
+      };
+
+      mockConnection.query.mockResolvedValueOnce([[user]]);
+      bcrypt.compare.mockResolvedValue(true);
+
+      const res = await request(app).post("/move/login").send({
+        email: "test@test.com",
+        psw: "TestPass123!",
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.body.view).toBe("about");
+      expect(mockConnection.release).toHaveBeenCalled();
+    });
+
+    test("should reject invalid email", async () => {
+      mockConnection.query.mockResolvedValueOnce([[]]);
+
+      const res = await request(app).post("/move/login").send({
+        email: "wrong@test.com",
+        psw: "TestPass123!",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errorMessage).toContain("not found");
+    });
+
+    test("should reject invalid password", async () => {
+      const user = {
+        user_id: 1,
+        email: "test@test.com",
+        password_hash: "hashed",
+        is_active: true,
+      };
+
+      mockConnection.query.mockResolvedValueOnce([[user]]);
+      bcrypt.compare.mockResolvedValue(false);
+
+      const res = await request(app).post("/move/login").send({
+        email: "test@test.com",
+        psw: "WrongPass123!",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errorMessage).toContain("Invalid password");
+    });
+
+    test("should reject deactivated account", async () => {
+      const user = {
+        user_id: 1,
+        email: "test@test.com",
+        password_hash: "hashed",
+        is_active: false,
+      };
+
+      mockConnection.query.mockResolvedValueOnce([[user]]);
+
+      const res = await request(app).post("/move/login").send({
+        email: "test@test.com",
+        psw: "TestPass123!",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errorMessage).toContain("deactivated");
+    });
+  });
+
+  describe("POST /move/verify-code", () => {
+    test("should verify valid code", async () => {
+      mockConnection.query
+        .mockResolvedValueOnce([[{ email: "test@test.com", verification_code: "123456" }]])
+        .mockResolvedValueOnce([{ affectedRows: 1 }]);
+
+      const res = await request(app).post("/move/verify-code").send({
+        email: "test@test.com",
+        verificationCode: "123456",
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.body.successMessage).toContain("successful");
+    });
+
+    test("should reject invalid code", async () => {
+      mockConnection.query.mockResolvedValueOnce([[]]);
+
+      const res = await request(app).post("/move/verify-code").send({
+        email: "test@test.com",
+        verificationCode: \"999999\",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errorMessage).toContain("Invalid");
+    });
+  });
+
+  describe("GET /move/logout", () => {
+    test("should logout and redirect", async () => {
+      const res = await request(app).get("/move/logout");
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe("/move/login");
+    });
+  });
+});

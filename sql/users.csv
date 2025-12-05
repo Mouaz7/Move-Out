@@ -1,2 +1,0 @@
-UserID,Email,PasswordHash,Salt,FullName,RegisteredAt,EmailVerified,LastActivity,VerificationToken,UpdatedAt
-2,"user1@example.com","hashed_password1","salt_value_1","Abd A","2023-09-01 10:00:00",true,"2023-09-01 09:00:00","token_1","2023-09-01 11:00:00"
