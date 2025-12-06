@@ -5,7 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/style/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="icon" href="/public/style/favicon.ico" type="image/x-icon" />
+    <script src="/js/settings.js" defer nonce="<%= typeof cspNonce !== 'undefined' ? cspNonce : '' %>"></script>
   </head>
   <body>
     <header>
@@ -17,21 +19,40 @@
         </div>
         <!-- Navigation Menu -->
         <ul class="nav-menu">
-          <li><a href="/move/about">About</a></li>
+          <li><a href="/move/about" data-i18n="about" class="nav-link toggle-btn">About</a></li>
           <% if (user && user?.isAdmin) { %>
           <!-- If the user is logged in and is an admin -->
-          <li><a href="/move/admin/user">Admin</a></li>
+          <li><a href="/move/admin/user" data-i18n="admin" class="nav-link toggle-btn">Admin</a></li>
           <% } %> <% if (user) { %>
           <!-- If the user is logged in -->
-          <li><a href="/move/profile">Profile</a></li>
-          <li><a href="/move/boxes">My Boxes</a></li>
-          <li><a href="/move/boxes/create">Add Box</a></li>
-          <li><a href="/move/logout">Logout</a></li>
+          <li><a href="/move/profile" data-i18n="profile" class="nav-link toggle-btn">Profile</a></li>
+          <li><a href="/move/boxes" data-i18n="myBoxes" class="nav-link toggle-btn">My Boxes</a></li>
+          <li><a href="/move/boxes/create" data-i18n="addBox" class="nav-link toggle-btn">Add Box</a></li>
+          <li><a href="/move/logout" data-i18n="logout" class="nav-link toggle-btn">Logout</a></li>
           <% } else { %>
           <!-- If the user is not logged in -->
-          <li><a href="/move/login">Login</a></li>
-          <li><a href="/move/register">Register</a></li>
+          <li><a href="/move/login" data-i18n="login" class="nav-link toggle-btn">Login</a></li>
+          <li><a href="/move/register" data-i18n="register" class="nav-link toggle-btn">Register</a></li>
           <% } %>
+          <!-- Settings Toggles -->
+          <li class="nav-settings">
+            <button
+              id="lang-toggle"
+              class="toggle-btn"
+              onclick="LanguageManager.toggle()"
+              title="Switch Language"
+            >
+              SV
+            </button>
+            <button
+              id="theme-toggle"
+              class="toggle-btn"
+              onclick="ThemeManager.toggle()"
+              title="Toggle Theme"
+            >
+              <i class="fas fa-sun"></i>
+            </button>
+          </li>
         </ul>
         <!-- Hamburger Menu Icon -->
         <div class="hamburger">
@@ -41,13 +62,16 @@
         </div>
       </nav>
     </header>
-    <script>
+    <script nonce="<%= typeof cspNonce !== 'undefined' ? cspNonce : '' %>">
+      // Hamburger menu toggle
       const hamburger = document.querySelector(".hamburger");
       const navMenu = document.querySelector(".nav-menu");
 
-      hamburger.addEventListener("click", () => {
-        navMenu.classList.toggle("active");
-      });
+      if (hamburger && navMenu) {
+        hamburger.addEventListener("click", () => {
+          navMenu.classList.toggle("active");
+        });
+      }
     </script>
   </body>
 </html>

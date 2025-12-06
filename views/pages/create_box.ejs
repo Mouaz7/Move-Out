@@ -1,114 +1,121 @@
 <%- include("../partials/header") %>
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create a New Box</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <script>
-      function selectLabelImage(label) {
-        document.querySelectorAll(".label-option").forEach((option) => {
-          option.classList.remove("selected");
-        });
-        label.classList.add("selected");
-        document.getElementById("labelImageInput").value = label.dataset.value;
-      }
-
-      function showContentInput() {
-        const contentType = document.getElementById("contentType").value;
-        document.getElementById("textInput").style.display = contentType === "text" ? "block" : "none";
-        document.getElementById("fileInput").style.display = contentType === "image" || contentType === "audio" ? "block" : "none";
-      }
-
-      function togglePinField() {
-        const isPrivate = document.getElementById("isPrivate").checked;
-        const pinField = document.getElementById("pinField");
-        pinField.style.display = isPrivate ? "block" : "none";
-
-        if (isPrivate) {
-          document.getElementById("pinCode").value = Math.floor(100000 + Math.random() * 900000).toString();
-        } else {
-          document.getElementById("pinCode").value = "";
-        }
-      }
-    </script>
-  </head>
-
-  <body>
-    <div class="container">
-      <h1>Create a New Box</h1>
-      <form action="/move/boxes/create" method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-          <label for="boxName">Box Name</label>
-          <input type="text" name="boxName" id="boxName" placeholder="Enter box name" required />
-        </div>
-
-        <div class="form-group">
-          <label>Select Label Image</label>
-          <div class="label-options">
-            <div class="label-option" data-value="labe1.png" onclick="selectLabelImage(this)">
-              <img src="/style/images/labe1.png" alt="Label 1" />
-            </div>
-            <div class="label-option" data-value="labe2.png" onclick="selectLabelImage(this)">
-              <img src="/style/images/labe2.png" alt="Label 2" />
-            </div>
-            <div class="label-option" data-value="labe3.png" onclick="selectLabelImage(this)">
-              <img src="/style/images/labe3.png" alt="Label 3" />
-            </div>
-          </div>
-          <input type="hidden" name="labelImage" id="labelImageInput" required />
-          <div class="form-group">
-            <label for="labelImageFile">Upload a Custom Label Image</label>
-            <input type="file" name="labelImageFile" id="customLabelImage" accept="image/*" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="labelName">Label Name</label>
-          <select name="labelName" id="labelName" required>
-            <option value="" disabled selected>Select label name</option>
-            <option value="normal">Normal</option>
-            <option value="hazard">Hazard</option>
-            <option value="fragile">Fragile</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="isPrivate"><input type="checkbox" name="isPrivate" id="isPrivate" onchange="togglePinField()" /> Make this label private</label>
-        </div>
-
-        <div id="pinField" class="form-group">
-          <label for="pinCode">PIN Code</label>
-          <input type="text" name="pinCode" id="pinCode" readonly />
-          <small>Note: This PIN is automatically generated for private labels.</small>
-        </div>
-
-        <div class="form-group">
-          <label for="contentType">Select Content Type</label>
-          <select name="contentType" id="contentType" onchange="showContentInput()" required>
-            <option value="" disabled selected>Select content type</option>
-            <option value="text">Text</option>
-            <option value="image">Image</option>
-            <option value="audio">Audio</option>
-          </select>
-        </div>
-
-        <div id="textInput" class="form-group" style="display: none">
-          <label for="contentText">Enter Text Content</label>
-          <textarea name="contentText" id="contentText" rows="4" placeholder="Enter text content"></textarea>
-        </div>
-
-        <div id="fileInput" class="form-group" style="display: none">
-          <label for="contentFile">Upload File</label>
-          <input type="file" name="contentFile" id="contentFile" accept="image/*,audio/*" />
-        </div>
-
-        <button type="submit">Create Box</button>
-      </form>
+<div class="form-container">
+  <h1><i class="fas fa-box"></i> Create a New Box</h1>
+  <form action="/move/boxes/create" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-group">
+      <label for="boxName"><i class="fas fa-edit"></i> Box Name</label>
+      <input type="text" name="boxName" id="boxName" placeholder="Enter box name" required />
     </div>
-  </body>
-</html>
+
+    <div class="form-group">
+      <label><i class="fas fa-image"></i> Select Label Image</label>
+      <div class="label-options">
+        <div class="label-option" data-value="labe1.png" onclick="selectLabelImage(this)">
+          <img src="/style/images/labe1.png" alt="Label 1" />
+        </div>
+        <div class="label-option" data-value="labe2.png" onclick="selectLabelImage(this)">
+          <img src="/style/images/labe2.png" alt="Label 2" />
+        </div>
+        <div class="label-option" data-value="labe3.png" onclick="selectLabelImage(this)">
+          <img src="/style/images/labe3.png" alt="Label 3" />
+        </div>
+      </div>
+      <input type="hidden" name="labelImage" id="labelImageInput" required />
+      <div class="form-group" style="margin-top: 16px;">
+        <label for="labelImageFile"><i class="fas fa-upload"></i> Or Upload Custom Label</label>
+        <input type="file" name="labelImageFile" id="labelImageFile" accept="image/*" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="labelName"><i class="fas fa-tag"></i> Label Type</label>
+      <select name="labelName" id="labelName" required>
+        <option value="" disabled selected>Select label type</option>
+        <option value="normal">Normal</option>
+        <option value="hazard">Hazard</option>
+        <option value="fragile">Fragile</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox-container">
+        <input type="checkbox" name="isPrivate" id="isPrivate" onchange="togglePinField()" />
+        <label for="isPrivate" style="margin: 0;"><i class="fas fa-lock"></i> Make this box private</label>
+      </div>
+    </div>
+
+    <div id="pinField" class="form-group" style="display: none;">
+      <label for="pinCode"><i class="fas fa-key"></i> PIN Code</label>
+      <input type="text" name="pinCode" id="pinCode" readonly />
+      <small class="text-muted">This PIN is automatically generated for private boxes.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="contentType"><i class="fas fa-file"></i> Content Type</label>
+      <select name="contentType" id="contentType" onchange="showContentInput()" required>
+        <option value="" disabled selected>Select content type</option>
+        <option value="text">Text</option>
+        <option value="image">Image</option>
+        <option value="audio">Audio</option>
+      </select>
+    </div>
+
+    <div id="textInput" class="form-group" style="display: none">
+      <label for="contentText"><i class="fas fa-align-left"></i> Text Content</label>
+      <textarea name="contentText" id="contentText" rows="4" placeholder="Enter what's inside this box..."></textarea>
+    </div>
+
+    <div id="fileInput" class="form-group" style="display: none">
+      <label for="contentFile"><i class="fas fa-cloud-upload-alt"></i> Upload File</label>
+      <input type="file" name="contentFile" id="contentFile" accept="image/*,audio/*" />
+    </div>
+
+    <button type="submit"><i class="fas fa-plus-circle"></i> Create Box</button>
+  </form>
+</div>
+
+<script>
+  function selectLabelImage(label) {
+    document.querySelectorAll(".label-option").forEach((option) => {
+      option.classList.remove("selected");
+    });
+    label.classList.add("selected");
+    document.getElementById("labelImageInput").value = label.dataset.value;
+  }
+
+  function showContentInput() {
+    const contentType = document.getElementById("contentType").value;
+    const textInput = document.getElementById("textInput");
+    const fileInput = document.getElementById("fileInput");
+
+    textInput.style.display = "none";
+    fileInput.style.display = "none";
+
+    if (contentType === "text") {
+      textInput.style.display = "block";
+    } else if (contentType === "image" || contentType === "audio") {
+      fileInput.style.display = "block";
+    }
+  }
+
+  function togglePinField() {
+    const isPrivate = document.getElementById("isPrivate").checked;
+    const pinField = document.getElementById("pinField");
+    pinField.style.display = isPrivate ? "block" : "none";
+
+    if (isPrivate) {
+      document.getElementById("pinCode").value = Math.floor(100000 + Math.random() * 900000).toString();
+    } else {
+      document.getElementById("pinCode").value = "";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("pinField").style.display = "none";
+    showContentInput();
+  });
+</script>
 
 <%- include("../partials/footer") %>

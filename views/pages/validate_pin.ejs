@@ -14,6 +14,7 @@
       <p>Please enter the 6-digit PIN to access the content for this box.</p>
 
       <form action="/move/boxes/qr/validate-pin/<%= box.access_token %>" method="POST" aria-label="PIN Code Validation Form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="form-group">
           <% if (errorMessage) { %>
           <p class="error-message" id="errorMessage" role="alert"><%= errorMessage %></p>

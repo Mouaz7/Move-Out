@@ -1,32 +1,42 @@
 <%- include("../partials/header") %>
+
 <div class="signup-container">
   <form action="/move/register" method="POST" class="signup-form" id="signup-form">
-    <h1>Sign Up</h1>
-    <p class="info-text">Create an account to get started</p>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <h1><i class="fas fa-user-plus"></i> Sign Up</h1>
+    <p class="info-text">Create an account to start organizing your move</p>
     <hr />
 
-    <label for="name">Name</label>
-    <input type="text" placeholder="Enter Your Name" name="name" required />
+    <div class="input-container">
+      <label for="name"><i class="fas fa-user"></i> Name</label>
+      <input type="text" placeholder="Enter your name" id="name" name="name" required />
+    </div>
 
-    <label for="email">Email</label>
-    <input type="email" placeholder="Enter Email" name="email" required />
+    <div class="input-container">
+      <label for="email"><i class="fas fa-envelope"></i> Email</label>
+      <input type="email" placeholder="Enter your email" id="email" name="email" required />
+    </div>
 
-    <label for="psw">Password</label>
-    <input type="password" placeholder="Enter Password" name="psw" required />
+    <div class="input-container">
+      <label for="psw"><i class="fas fa-lock"></i> Password</label>
+      <input type="password" placeholder="Create a password" id="psw" name="psw" required />
+    </div>
 
-    <label for="psw_repeat">Repeat Password</label>
-    <input type="password" placeholder="Repeat Password" name="psw_repeat" required />
+    <div class="input-container">
+      <label for="psw_repeat"><i class="fas fa-check-circle"></i> Confirm Password</label>
+      <input type="password" placeholder="Repeat your password" id="psw_repeat" name="psw_repeat" required />
+    </div>
 
     <% if (errorMessage) { %>
     <div class="error-message" id="error-message">
-      <p><%= errorMessage %></p>
+      <p><i class="fas fa-exclamation-triangle"></i> <%= errorMessage %></p>
     </div>
     <% } %>
 
-    <button type="submit" class="signupbtn" id="submit-button">Sign Up</button>
+    <button type="submit" class="signupbtn" id="submit-button"><i class="fas fa-rocket"></i> Sign Up</button>
 
     <div class="login-link" id="login-link">
-      <p>Already have an account? <a href="/move/login">Login here</a></p>
+      <p>Already have an account? <a href="/move/login"><i class="fas fa-sign-in-alt"></i> Login here</a></p>
     </div>
   </form>
 </div>
@@ -38,7 +48,6 @@
     const errorMessage = document.getElementById("error-message");
     const submitButton = document.getElementById("submit-button");
     const loginLink = document.getElementById("login-link");
-    const passwordFields = document.querySelectorAll('input[type="password"]');
 
     if (errorMessage) {
       submitButton.style.display = "none";

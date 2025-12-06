@@ -2,44 +2,54 @@
 
 <div class="profile-container">
   <div class="card">
-    <h2>Profile Overview</h2>
+    <h2><i class="fas fa-user-circle"></i> Profile Overview</h2>
     <div class="static-info">
-      <p><strong>User Name:</strong> <span class="text-muted"><%= user.profileName %></span></p>
-      <p><strong>Email:</strong> <span class="text-muted"><%= user.email %></span></p>
+      <p><strong><i class="fas fa-user"></i> Name:</strong> <span class="text-muted"><%= user.profileName %></span></p>
+      <p><strong><i class="fas fa-envelope"></i> Email:</strong> <span class="text-muted"><%= user.email %></span></p>
     </div>
     <form action="/move/profile/deactivate" method="POST" onsubmit="return confirm('Are you sure you want to deactivate your account?');">
-      <button type="submit" class="btn btn-danger">Deactivate Account</button>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn btn-danger"><i class="fas fa-user-slash"></i> Deactivate Account</button>
     </form>
 
-    <h2>Update Profile</h2>
-    <!-- Display Error or Success Messages -->
+    <h2 style="margin-top: 32px;"><i class="fas fa-user-edit"></i> Update Profile</h2>
+    
     <% if (errorMessage) { %>
-    <div class="alert alert-danger"><%= errorMessage %></div>
-    <% } %> <% if (successMessage) { %>
-    <div class="alert alert-success"><%= successMessage %></div>
+    <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> <%= errorMessage %></div>
+    <% } %> 
+    <% if (successMessage) { %>
+    <div class="alert alert-success"><i class="fas fa-check-circle"></i> <%= successMessage %></div>
     <% } %>
 
     <form id="updateProfileForm" action="/move/profile/update" method="POST" class="form-profile-update">
-      <label for="profileName" class="form-label">Name</label>
-      <input type="text" id="profileName" name="profileName" class="form-control" value="<%= user.profileName %>" required />
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-group">
+        <label for="profileName" class="form-label"><i class="fas fa-id-card"></i> Name</label>
+        <input type="text" id="profileName" name="profileName" class="form-control" value="<%= user.profileName %>" required />
+      </div>
 
-      <label for="email" class="form-label">Email</label>
-      <input type="email" id="email" name="email" class="form-control" value="<%= user.email %>" required readonly />
+      <div class="form-group">
+        <label for="email" class="form-label"><i class="fas fa-at"></i> Email</label>
+        <input type="email" id="email" name="email" class="form-control" value="<%= user.email %>" required readonly />
+      </div>
 
-      <label for="currentPassword" class="form-label">Current Password</label>
-      <input type="password" id="currentPassword" name="currentPassword" class="form-control" placeholder="Enter Current Password" required />
+      <div class="form-group">
+        <label for="currentPassword" class="form-label"><i class="fas fa-lock"></i> Current Password</label>
+        <input type="password" id="currentPassword" name="currentPassword" class="form-control" placeholder="Enter current password" required />
+      </div>
 
-      <label for="newPassword" class="form-label">New Password</label>
-      <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter New Password (optional)" />
-      <small class="text-muted">Leave blank if you do not wish to change the password.</small>
+      <div class="form-group">
+        <label for="newPassword" class="form-label"><i class="fas fa-key"></i> New Password</label>
+        <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter new password (optional)" />
+        <small class="text-muted">Leave blank to keep current password.</small>
+      </div>
 
-      <button type="submit" class="btn btn-primary">Update Profile</button>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Profile</button>
     </form>
   </div>
 </div>
 
 <script>
-  // Set a timeout for hiding error and success messages after page load
   window.addEventListener("load", function () {
     setTimeout(() => {
       const errorAlert = document.querySelector(".alert-danger");

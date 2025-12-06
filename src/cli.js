@@ -1,6 +1,5 @@
 "use strict";
-const mysql = require("mysql2/promise"); // Uppdaterat från 'promise-mysql' till 'mysql2/promise'
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
@@ -8,23 +7,11 @@ const path = require("path");
 const moment = require("moment");
 require("dotenv").config();
 const QRCode = require("qrcode");
-const dbConfig = require("../config/db/move.json"); // Se till att denna fil innehåller dina databasuppgifter
 
-// Skapa en anslutningspool
-const pool = mysql.createPool(dbConfig);
+// Use the database abstraction layer instead of direct MySQL
+const { getConnection } = require("../config/db/database");
 
-// Behåll 'getConnection' funktionen men uppdatera den för att använda poolen
-async function getConnection() {
-  try {
-    const connection = await pool.getConnection();
-    return connection;
-  } catch (error) {
-    console.error("Database connection failed:", error);
-    throw error;
-  }
-}
-
-// Konfigurera nodemailer för e-post
+// Configure nodemailer for email
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -33,7 +20,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Funktion för att skicka verifieringsmail
+// Send verification email
 async function sendVerificationEmail(toEmail, token) {
   const baseUrl = process.env.BASE_URL || "http://localhost:1338";
   const verificationLink = `${baseUrl}/verify-email?token=${token}`;
@@ -52,7 +39,7 @@ async function sendVerificationEmail(toEmail, token) {
   }
 }
 
-// Funktion för att skapa en ny användare
+// Create a new user
 async function createUser(name, email, password) {
   let connection;
   try {
@@ -72,7 +59,7 @@ async function createUser(name, email, password) {
   }
 }
 
-// Funktion för att verifiera användare
+// Verify user email
 async function verifyUser(token) {
   let connection;
   try {
@@ -81,7 +68,7 @@ async function verifyUser(token) {
     const [results] = await connection.query("SELECT * FROM users WHERE verification_token = ?", [token]);
 
     if (results.length > 0) {
-      await connection.query("UPDATE users SET is_verified = TRUE, verification_token = NULL WHERE verification_token = ?", [token]);
+      await connection.query("UPDATE users SET is_verified = 1, verification_token = NULL WHERE verification_token = ?", [token]);
     } else {
       throw new Error("Verification token is invalid.");
     }
@@ -93,7 +80,7 @@ async function verifyUser(token) {
   }
 }
 
-// Funktion för att logga in användare
+// Login user
 async function loginUser(email, password) {
   let connection;
   try {
@@ -121,7 +108,7 @@ async function loginUser(email, password) {
   }
 }
 
-// Funktion för att hämta alla användare
+// Get all users
 async function getAllUsers() {
   let connection;
   try {
@@ -136,12 +123,12 @@ async function getAllUsers() {
   }
 }
 
-// Funktion för att aktivera en användare
+// Activate a user
 async function activateUser(userId) {
   let connection;
   try {
     connection = await getConnection();
-    await connection.query("UPDATE users SET is_active = TRUE WHERE user_id = ?", [userId]);
+    await connection.query("UPDATE users SET is_active = 1 WHERE user_id = ?", [userId]);
   } catch (error) {
     console.error("Error activating user:", error);
     throw error;
@@ -150,7 +137,7 @@ async function activateUser(userId) {
   }
 }
 
-// Funktion för att inaktivera en användare
+// Deactivate a user
 async function deactivateUser(userId) {
   let connection;
   try {
@@ -164,7 +151,7 @@ async function deactivateUser(userId) {
   }
 }
 
-// Funktion för att växla användarstatus
+// Toggle user active status
 async function toggleUserStatus(userId) {
   let connection;
   try {
@@ -184,49 +171,7 @@ async function toggleUserStatus(userId) {
   }
 }
 
-// async function deleteUser(userId) {
-//   let connection;
-//   try {
-//     connection = await getConnection();
-
-//     const [boxes] = await connection.query("SELECT label_image, content_data FROM boxes WHERE user_id = ?", [userId]);
-
-//     boxes.forEach((box) => {
-//       const contentFile = box.content_data;
-
-//       if (contentFile) {
-//         const fileName = contentFile.trim();
-//         if (fileName) {
-//           const filePath = path.join(__dirname, "../uploads", `${fileName}`);
-
-//           console.log(`File to be deleted: ${filePath}`);
-
-//           fs.unlink(filePath, (err) => {
-//             if (err) {
-//               console.error(`Error deleting file: ${fileName}. It may not exist.`, err);
-//             } else {
-//               console.log(`File deleted successfully: ${fileName}`);
-//             }
-//           });
-//         } else {
-//           console.warn(`Could not extract file name from: ${contentFile}`);
-//         }
-//       } else {
-//         console.warn(`ContentFile is undefined or empty for box: ${JSON.stringify(box)}`);
-//       }
-//     });
-
-//     await connection.query("DELETE FROM boxes WHERE user_id = ?", [userId]);
-//     await connection.query("DELETE FROM users WHERE user_id = ?", [userId]);
-//     console.log(`Successfully deleted user with ID: ${userId} and associated files.`);
-//   } catch (error) {
-//     console.error("Error deleting user and related files:", error);
-//     throw error;
-//   } finally {
-//     if (connection) connection.release();
-//   }
-// }
-
+// Delete user and associated files
 async function deleteUser(userId) {
   let connection;
   try {
@@ -289,12 +234,13 @@ async function deleteUser(userId) {
     if (connection) connection.release();
   }
 }
-// Funktion för att skicka marknadsföringsmail
+
+// Send marketing emails to active users
 async function sendMarketingEmails(subject, message) {
   let connection;
   try {
     connection = await getConnection();
-    const [users] = await connection.query("SELECT email FROM users WHERE is_active = TRUE");
+    const [users] = await connection.query("SELECT email FROM users WHERE is_active = 1");
 
     for (const user of users) {
       const mailOptions = {
@@ -317,14 +263,14 @@ async function sendMarketingEmails(subject, message) {
   }
 }
 
-// Funktion för att inaktivera inaktiva användare
+// Deactivate users who have been inactive for a month
 async function deactivateInactiveUsers() {
   let connection;
   try {
     connection = await getConnection();
     const oneMonthAgo = moment().subtract(1, "months").format("YYYY-MM-DD HH:mm:ss");
 
-    const [usersToDeactivate] = await connection.query("SELECT * FROM users WHERE last_activity < ? AND is_active = TRUE", [oneMonthAgo]);
+    const [usersToDeactivate] = await connection.query("SELECT * FROM users WHERE last_activity < ? AND is_active = 1", [oneMonthAgo]);
 
     if (usersToDeactivate.length === 0) {
       return;
@@ -354,7 +300,7 @@ async function deactivateInactiveUsers() {
   }
 }
 
-// Funktion för att generera QR-kod
+// Generate QR code
 async function generateQRCode(text) {
   try {
     return await QRCode.toDataURL(text);
@@ -364,33 +310,33 @@ async function generateQRCode(text) {
   }
 }
 
-// Funktion för att skapa en ny box
+// Create a new box
 async function createBox(userId, boxName, labelName, labelImage, contentType, contentText, contentFile, isPrivate, pinCode) {
   let connection;
   try {
     connection = await getConnection();
 
-    // Beroende på contentType, hantera innehållet
+    // Set content based on contentType
     const contentData = contentType === "text" ? contentText : contentFile;
 
-    // Generera en unik access token
+    // Generate a unique access token
     const accessToken = crypto.randomBytes(16).toString("hex");
 
-    // Spara lådan i databasen
+    // Save the box to the database
     const [result] = await connection.query("INSERT INTO boxes (user_id, box_name, label_name, label_image, content_type, content_data, access_token,is_private, pin_code) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)", [userId, boxName, labelName, labelImage, contentType, contentData, accessToken, isPrivate, pinCode]);
     const boxId = result.insertId;
 
-    // Skapa en URL för lådan
+    // Create URL for the box
     const baseUrl = process.env.BASE_URL || "http://localhost:1338";
     const boxUrl = `${baseUrl}/move/boxes/qr/${accessToken}`;
 
-    // Generera QR-koden
+    // Generate the QR code
     const qrCodeDataUrl = await generateQRCode(boxUrl);
 
-    // Uppdatera lådan med QR-koden
+    // Update the box with the QR code
     await connection.query("UPDATE boxes SET qr_code = ? WHERE box_id = ?", [qrCodeDataUrl, boxId]);
 
-    return boxId; // Returnera boxId så att det kan användas efter skapandet
+    return boxId; // Return boxId for use after creation
   } catch (error) {
     console.error("Error creating box:", error);
     throw error;
@@ -399,7 +345,7 @@ async function createBox(userId, boxName, labelName, labelImage, contentType, co
   }
 }
 
-// Funktion för att hämta en box baserat på access token
+// Get box by access token
 async function getBoxByToken(accessToken) {
   let connection;
   try {
@@ -414,7 +360,7 @@ async function getBoxByToken(accessToken) {
   }
 }
 
-// Funktion för att hämta en box baserat på ID
+// Get box by ID
 async function getBoxById(boxId, userId) {
   let connection;
   try {
@@ -429,7 +375,7 @@ async function getBoxById(boxId, userId) {
   }
 }
 
-// Funktion för att hämta innehållet i en box
+// Get contents of a box
 async function getBoxContents(boxId) {
   let connection;
   try {
@@ -444,7 +390,7 @@ async function getBoxContents(boxId) {
   }
 }
 
-// Funktion för att lägga till innehåll i en box
+// Add content to a box
 async function addBoxContent(boxId, contentType, contentData, contentUrl) {
   let connection;
   try {
@@ -458,7 +404,7 @@ async function addBoxContent(boxId, contentType, contentData, contentUrl) {
   }
 }
 
-// Funktion för att hämta alla boxar för en användare
+// Get all boxes for a user
 async function getAllBoxes(userId) {
   let connection;
   try {
@@ -473,7 +419,7 @@ async function getAllBoxes(userId) {
   }
 }
 
-// Funktion för att uppdatera en box
+// Update a box
 async function updateBox(boxId, userId, boxName, labelDesign) {
   let connection;
   try {
@@ -487,7 +433,7 @@ async function updateBox(boxId, userId, boxName, labelDesign) {
   }
 }
 
-// Funktion för att ta bort en box
+// Delete a box
 async function deleteBox(boxId, userId) {
   let connection;
   try {
@@ -501,7 +447,7 @@ async function deleteBox(boxId, userId) {
   }
 }
 
-// Funktion för att skapa eller uppdatera en etikett
+// Create or update a label
 async function createOrUpdateLabel(labelId, labelName, isPrivate, boxId) {
   let connection;
   try {
@@ -509,10 +455,10 @@ async function createOrUpdateLabel(labelId, labelName, isPrivate, boxId) {
     const pinCode = isPrivate ? generateSixDigitPin() : null;
 
     if (labelId) {
-      // Uppdatera befintlig etikett
+      // Update existing label
       await connection.query("UPDATE labels SET label_name = ?, is_private = ?, pin_code = ? WHERE label_id = ?", [labelName, isPrivate, pinCode, labelId]);
     } else {
-      // Skapa ny etikett
+      // Create new label
       const [result] = await connection.query("INSERT INTO labels (label_name, is_private, pin_code, box_id) VALUES (?, ?, ?, ?)", [labelName, isPrivate, pinCode, boxId]);
       return result.insertId;
     }
@@ -524,12 +470,12 @@ async function createOrUpdateLabel(labelId, labelName, isPrivate, boxId) {
   }
 }
 
-// Funktion för att validera PIN-koden för en etikett
+// Validate PIN code for a label
 async function validateLabelPin(labelId, pinCode) {
   let connection;
   try {
     connection = await getConnection();
-    const [rows] = await connection.query("SELECT * FROM labels WHERE label_id = ? AND pin_code = ? AND is_private = TRUE", [labelId, pinCode]);
+    const [rows] = await connection.query("SELECT * FROM labels WHERE label_id = ? AND pin_code = ? AND is_private = 1", [labelId, pinCode]);
 
     return rows.length > 0;
   } catch (error) {
@@ -540,14 +486,14 @@ async function validateLabelPin(labelId, pinCode) {
   }
 }
 
-// Generera sexsiffrig PIN-kod
+// Generate six-digit PIN code
 function generateSixDigitPin() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Exportera alla funktioner
+// Export all functions
 module.exports = {
-  // Användarfunktioner
+  // User functions
   createUser,
   verifyUser,
   loginUser,
@@ -560,7 +506,7 @@ module.exports = {
   sendVerificationEmail,
   deactivateInactiveUsers,
 
-  // Boxfunktioner
+  // Box functions
   createBox,
   addBoxContent,
   getBoxById,
@@ -570,7 +516,7 @@ module.exports = {
   updateBox,
   deleteBox,
 
-  // Övriga funktioner
+  // Other functions
   generateQRCode,
   createOrUpdateLabel,
   validateLabelPin,

@@ -16,6 +16,7 @@
     <% } %>
 
     <form action="/move/profile/reactivate" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="form-group">
             <label for="email">Enter your email to reactivate your account</label>
             <input type="email" id="email" name="email" placeholder="Enter your email" required>

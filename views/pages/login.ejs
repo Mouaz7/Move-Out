@@ -2,33 +2,55 @@
 
 <div class="login-container">
   <div class="login-box">
-    <h2 class="login-title">Login to MoveOut</h2>
+    <h2 class="login-title">
+      <i class="fas fa-sign-in-alt"></i> Login to MoveOut
+    </h2>
 
     <form action="/move/login" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div class="input-container">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="Enter Email" required />
+        <label for="email"><i class="fas fa-envelope"></i> Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
       </div>
 
       <div class="input-container">
-        <label for="psw">Password</label>
-        <input type="password" id="psw" name="psw" placeholder="Enter Password" required />
+        <label for="psw"><i class="fas fa-lock"></i> Password</label>
+        <input
+          type="password"
+          id="psw"
+          name="psw"
+          placeholder="Enter your password"
+          required
+        />
       </div>
 
       <% if (errorMessage) { %>
       <div class="error-message" id="error-message">
-        <p><%= errorMessage %></p>
+        <p><i class="fas fa-exclamation-triangle"></i> <%= errorMessage %></p>
       </div>
       <% } %>
 
-      <button type="submit" class="btn login-btn" id="submit-button">Login</button>
+      <button type="submit" class="btn login-btn" id="submit-button">
+        <i class="fas fa-arrow-right"></i> Login
+      </button>
 
       <div class="forgot-password" id="forgot-password">
-        <a href="#">Forgot password?</a>
+        <a href="/move/forgot-password"
+          ><i class="fas fa-key"></i> Forgot password?</a
+        >
       </div>
 
       <div class="register-link" id="register-link">
-        <p>Don't have an account? <a href="/move/register">Sign Up</a></p>
+        <p>
+          Don't have an account?
+          <a href="/move/register"><i class="fas fa-user-plus"></i> Sign Up</a>
+        </p>
       </div>
     </form>
 

@@ -1,121 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- include("../partials/header") %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Box</title>
-    <link rel="stylesheet" href="/style/style.css">
-    <script>
-        function selectLabelImage(label) {
-            document.querySelectorAll(".label-option").forEach((option) => {
-                option.classList.remove("selected");
-            });
-            label.classList.add("selected");
-            document.getElementById("labelImageInput").value = label.dataset.value;
-        }
-
-        function showContentInput() {
-            const contentType = document.getElementById("contentType").value;
-            document.getElementById("textInput").style.display = contentType === "text" ? "block" : "none";
-            document.getElementById("fileInput").style.display = contentType === "image" || contentType === "audio" ? "block" : "none";
-        }
-
-        function togglePinField() {
-            const isPrivate = document.getElementById("isPrivate").checked;
-            const pinField = document.getElementById("pinField");
-            pinField.style.display = isPrivate ? "block" : "none";
-
-            if (isPrivate) {
-                document.getElementById("pinCode").value = Math.floor(100000 + Math.random() * 900000).toString();
-            } else {
-                document.getElementById("pinCode").value = "";
-            }
-        }
-
-        window.onload = function () {
-            document.getElementById("contentType").addEventListener("change", showContentInput);
-            document.getElementById("isPrivate").addEventListener("change", togglePinField);
-            showContentInput();
-            togglePinField();
-        };
-    </script>
-</head>
-
-<body>
-    <%- include("../partials/header") %>
-    <div class="container">
-        <h1>Edit Box</h1>
-        <form action="/move/boxes/edit/<%= box.box_id %>" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="boxName">Box Name:</label>
-                <input type="text" id="boxName" name="boxName" value="<%= box.box_name %>" required>
-            </div>
-
-            <div class="form-group">
-                <label>Select Label Image</label>
-                <div class="label-options">
-                    <div class="label-option" data-value="labe1.png" onclick="selectLabelImage(this)">
-                        <img src="/style/images/labe1.png" alt="Label 1" class="<%= box.label_image === 'labe1.png' ? 'selected' : '' %>">
-                    </div>
-                    <div class="label-option" data-value="labe2.png" onclick="selectLabelImage(this)">
-                        <img src="/style/images/labe2.png" alt="Label 2" class="<%= box.label_image === 'labe2.png' ? 'selected' : '' %>">
-                    </div>
-                    <div class="label-option" data-value="labe3.png" onclick="selectLabelImage(this)">
-                        <img src="/style/images/labe3.png" alt="Label 3" class="<%= box.label_image === 'labe3.png' ? 'selected' : '' %>">
-                    </div>
-                </div>
-                <input type="hidden" name="labelImage" id="labelImageInput" value="<%= box.label_image %>" required>
-                <div class="form-group">
-                    <label for="labelImageFile">Upload a Custom Label Image</label>
-                    <input type="file" name="labelImageFile" id="labelImageFile" accept="image/*">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="labelName">Label Name:</label>
-                <select id="labelName" name="label_name" required>
-                    <option value="normal" <%= box.label_name === 'normal' ? 'selected' : '' %>>Normal</option>
-                    <option value="hazard" <%= box.label_name === 'hazard' ? 'selected' : '' %>>Hazard</option>
-                    <option value="fragile" <%= box.label_name === 'fragile' ? 'selected' : '' %>>Fragile</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="isPrivate">
-                    <input type="checkbox" name="isPrivate" id="isPrivate" value="1" <%= box.is_private ? 'checked' : '' %> onchange="togglePinField()"> Make this label private
-                </label>
-            </div>
-
-            <div id="pinField" class="form-group" style="display: none;">
-                <label for="pinCode">PIN Code</label>
-                <input type="text" name="pinCode" id="pinCode" readonly>
-                <small>Note: This PIN is automatically generated for private labels.</small>
-            </div>
-
-            <div class="form-group">
-                <label for="contentType">Select Content Type</label>
-                <select name="contentType" id="contentType" onchange="showContentInput()" required>
-                    <option value="text" <%= box.content_type === 'text' ? 'selected' : '' %>>Text</option>
-                    <option value="image" <%= box.content_type === 'image' ? 'selected' : '' %>>Image</option>
-                    <option value="audio" <%= box.content_type === 'audio' ? 'selected' : '' %>>Audio</option>
-                </select>
-            </div>
-
-            <div id="textInput" class="form-group" style="display: none;">
-                <label for="contentText">Update Text Content</label>
-                <textarea id="contentText" name="content_data" rows="4"><%= box.content_data %></textarea>
-            </div>
-
-            <div id="fileInput" class="form-group" style="display: none;">
-                <label for="contentFile">Update File</label>
-                <input type="file" id="contentFile" name="contentFile" accept="image/*,audio/*">
-            </div>
-
-            <button type="submit">Update Box</button>
-        </form>
+<div class="form-container">
+  <h1><i class="fas fa-edit"></i> Edit Box</h1>
+  <form action="/move/boxes/edit/<%= box.box_id %>" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-group">
+      <label for="boxName"><i class="fas fa-box"></i> Box Name</label>
+      <input type="text" id="boxName" name="boxName" value="<%= box.box_name %>" required>
     </div>
-    <%- include("../partials/footer") %>
-</body>
 
-</html>
+    <div class="form-group">
+      <label><i class="fas fa-image"></i> Select Label Image</label>
+      <div class="label-options">
+        <div class="label-option <%= box.label_image === 'labe1.png' ? 'selected' : '' %>" data-value="labe1.png" onclick="selectLabelImage(this)">
+          <img src="/style/images/labe1.png" alt="Label 1">
+        </div>
+        <div class="label-option <%= box.label_image === 'labe2.png' ? 'selected' : '' %>" data-value="labe2.png" onclick="selectLabelImage(this)">
+          <img src="/style/images/labe2.png" alt="Label 2">
+        </div>
+        <div class="label-option <%= box.label_image === 'labe3.png' ? 'selected' : '' %>" data-value="labe3.png" onclick="selectLabelImage(this)">
+          <img src="/style/images/labe3.png" alt="Label 3">
+        </div>
+      </div>
+      <input type="hidden" name="labelImage" id="labelImageInput" value="<%= box.label_image %>" required>
+      <div class="form-group" style="margin-top: 16px;">
+        <label for="labelImageFile"><i class="fas fa-upload"></i> Or Upload Custom Label</label>
+        <input type="file" name="labelImageFile" id="labelImageFile" accept="image/*">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="labelName"><i class="fas fa-tag"></i> Label Type</label>
+      <select id="labelName" name="label_name" required>
+        <option value="normal" <%= box.label_name === 'normal' ? 'selected' : '' %>>Normal</option>
+        <option value="hazard" <%= box.label_name === 'hazard' ? 'selected' : '' %>>Hazard</option>
+        <option value="fragile" <%= box.label_name === 'fragile' ? 'selected' : '' %>>Fragile</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox-container">
+        <input type="checkbox" name="isPrivate" id="isPrivate" value="1" <%= box.is_private ? 'checked' : '' %> onchange="togglePinField()">
+        <label for="isPrivate" style="margin: 0;"><i class="fas fa-lock"></i> Make this box private</label>
+      </div>
+    </div>
+
+    <div id="pinField" class="form-group" style="display: none;">
+      <label for="pinCode"><i class="fas fa-key"></i> PIN Code</label>
+      <input type="text" name="pinCode" id="pinCode" readonly>
+      <small class="text-muted">This PIN is automatically generated for private boxes.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="contentType"><i class="fas fa-file"></i> Content Type</label>
+      <select name="contentType" id="contentType" onchange="showContentInput()" required>
+        <option value="text" <%= box.content_type === 'text' ? 'selected' : '' %>>Text</option>
+        <option value="image" <%= box.content_type === 'image' ? 'selected' : '' %>>Image</option>
+        <option value="audio" <%= box.content_type === 'audio' ? 'selected' : '' %>>Audio</option>
+      </select>
+    </div>
+
+    <div id="textInput" class="form-group" style="display: none;">
+      <label for="contentText"><i class="fas fa-align-left"></i> Text Content</label>
+      <textarea id="contentText" name="content_data" rows="4"><%= box.content_data %></textarea>
+    </div>
+
+    <div id="fileInput" class="form-group" style="display: none;">
+      <label for="contentFile"><i class="fas fa-cloud-upload-alt"></i> Upload New File</label>
+      <input type="file" id="contentFile" name="contentFile" accept="image/*,audio/*">
+    </div>
+
+    <button type="submit"><i class="fas fa-save"></i> Update Box</button>
+  </form>
+</div>
+
+<script>
+  function selectLabelImage(label) {
+    document.querySelectorAll(".label-option").forEach((option) => {
+      option.classList.remove("selected");
+    });
+    label.classList.add("selected");
+    document.getElementById("labelImageInput").value = label.dataset.value;
+  }
+
+  function showContentInput() {
+    const contentType = document.getElementById("contentType").value;
+    document.getElementById("textInput").style.display = contentType === "text" ? "block" : "none";
+    document.getElementById("fileInput").style.display = contentType === "image" || contentType === "audio" ? "block" : "none";
+  }
+
+  function togglePinField() {
+    const isPrivate = document.getElementById("isPrivate").checked;
+    const pinField = document.getElementById("pinField");
+    pinField.style.display = isPrivate ? "block" : "none";
+
+    if (isPrivate) {
+      document.getElementById("pinCode").value = Math.floor(100000 + Math.random() * 900000).toString();
+    } else {
+      document.getElementById("pinCode").value = "";
+    }
+  }
+
+  window.onload = function () {
+    showContentInput();
+    togglePinField();
+  };
+</script>
+
+<%- include("../partials/footer") %>

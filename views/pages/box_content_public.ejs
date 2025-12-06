@@ -5,55 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= title %> - Box Details</title>
     <link rel="stylesheet" href="/style/style.css" />
-    <!-- Länk till den externa CSS-filen -->
   </head>
   <body>
     <%- include("../partials/header") %>
 
-    <div class="qr-container">
-      <h1 class="qr-header">Box Details</h1>
+    <div class="box-details-page">
+      <div class="box-details-card">
+        <div class="box-details-header">
+          <h1><%= box.box_name %></h1>
+          <span class="privacy-badge <%= box.is_private === 1 ? 'private' : 'public' %>">
+            <%= box.is_private === 1 ? "Private" : "Public" %>
+          </span>
+        </div>
 
-      <div class="qr-details-section">
-        <h3>Box Name:</h3>
-        <p><%= box.box_name %></p>
-      </div>
-
-      <div class="qr-details-section">
-        <h3>Label:</h3>
-        <p><%= box.label_name ? box.label_name : "No label provided" %></p>
-      </div>
-
-      <div class="qr-privacy-section">
-        <h3>Privacy Status:</h3>
-        <p><%= box.is_private === 1 ? "Private" : "Public" %></p>
-      </div>
-
-      <% if (box.label_image && box.label_image !== 'undefined') { %>
-      <div class="qr-details-section">
-        <h3>Label Image:</h3>
-        <img src="/style/images/<%= box.label_image %>" alt="Label Image" />
-      </div>
-      <% } %>
-
-      <div class="qr-details-section">
-        <h3>Content Type:</h3>
-        <p><%= box.content_type.charAt(0).toUpperCase() + box.content_type.slice(1) %></p>
-      </div>
-
-      <div class="qr-details-section">
-        <h3>Content:</h3>
-        <% if (box.content_type === 'text') { %>
-        <p><%= box.content_data %></p>
-        <% } else if (box.content_type === 'image') { %>
-        <img src="/uploads/<%= box.content_data %>" alt="Box Image" class="qr-details-section-img" />
-        <% } else if (box.content_type === 'audio') { %>
-        <audio controls class="qr-audio">
-          <source src="/uploads/<%= box.content_data %>" type="audio/mpeg" />
-          Your browser does not support the audio element.
-        </audio>
-        <% } else { %>
-        <p>No content available to display.</p>
+        <% if (box.label_image && box.label_image !== 'undefined') { %>
+        <div class="label-image-section">
+          <img src="/style/images/<%= box.label_image %>" alt="Label Image" class="label-hero-image" />
+          <% if (box.label_name) { %>
+          <p class="label-caption"><%= box.label_name %></p>
+          <% } %>
+        </div>
         <% } %>
+
+        <div class="box-info-list">
+          <div class="info-row">
+            <span class="info-row-label">Content Type</span>
+            <span class="info-row-value"><%= box.content_type %></span>
+          </div>
+          <% if (box.label_name) { %>
+          <div class="info-row">
+            <span class="info-row-label">Label</span>
+            <span class="info-row-value"><%= box.label_name %></span>
+          </div>
+          <% } %>
+        </div>
+
+        <div class="content-section">
+          <p class="content-section-title">Content</p>
+          <div class="content-box">
+            <% if (box.content_type === 'text') { %>
+            <p><%= box.content_data %></p>
+            <% } else if (box.content_type === 'image') { %>
+            <img src="/uploads/<%= box.content_data %>" alt="Box Image" />
+            <% } else if (box.content_type === 'audio') { %>
+            <audio controls>
+              <source src="/uploads/<%= box.content_data %>" type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+            <% } else { %>
+            <p>No content available to display.</p>
+            <% } %>
+          </div>
+        </div>
       </div>
     </div>
 

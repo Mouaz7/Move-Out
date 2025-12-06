@@ -1,61 +1,55 @@
 <%- include("../partials/header") %>
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Box Details</title>
-    <link rel="stylesheet" href="/style/style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <h1 class="qr-header">Box Details</h1>
-      <div class="box-details">
-        <div class="details-section">
-          <h3>Box Name:</h3>
-          <p><%= box.box_name %></p>
-        </div>
-
-        <div class="details-section">
-          <h3>Label Image Type:</h3>
-          <p><%= box.label_name ? box.label_name.charAt(0).toUpperCase() + box.label_name.slice(1) : "No Label" %></p>
-          <div class="label-image">
-            <img src="/style/images/<%= box.label_image %>" alt="Label Image" class="label-img" />
-          </div>
-        </div>
-
-        <div class="details-section">
-          <h3>Content Type:</h3>
-          <p><%= box.content_type.charAt(0).toUpperCase() + box.content_type.slice(1) %></p>
-        </div>
-
-        <div class="qr-privacy-section">
-          <h3>Privacy Status:</h3>
-          <p><%= box.is_private === 1 ? "Private" : "Public" %></p>
-        </div>
-
-        <div class="details-section">
-          <h3>QR Code:</h3>
-          <div class="qr-code" id="qrCode">
-            <img src="<%= box.qr_code %>" alt="QR Code" />
-            <div class="info-message">Click the QR Code to download it</div>
-          </div>
-        </div>
-      </div>
+<div class="box-details-page">
+  <div class="box-details-card">
+    <div class="box-details-header">
+      <h1><%= box.box_name %></h1>
+      <span class="privacy-badge <%= box.is_private === 1 ? 'private' : 'public' %>">
+        <i class="fas fa-<%= box.is_private === 1 ? 'lock' : 'globe' %>"></i>
+        <%= box.is_private === 1 ? "Private" : "Public" %>
+      </span>
     </div>
 
-    <script>
-      const qrCodeElement = document.getElementById("qrCode");
+    <% if (box.label_image && box.label_image !== 'undefined') { %>
+    <div class="label-image-section">
+      <img src="/style/images/<%= box.label_image %>" alt="Label Image" class="label-hero-image" />
+      <% if (box.label_name) { %>
+      <p class="label-caption"><%= box.label_name %></p>
+      <% } %>
+    </div>
+    <% } %>
 
-      // Allow download on click
-      qrCodeElement.addEventListener("click", function () {
-        const link = document.createElement("a");
-        link.href = "<%= box.qr_code %>";
-        link.download = "QR_Code.png"; // Default filename
-        link.click();
-      });
-    </script>
-  </body>
-</html>
+    <div class="box-info-list">
+      <div class="info-row">
+        <span class="info-row-label"><i class="fas fa-file-alt"></i> Content Type</span>
+        <span class="info-row-value"><%= box.content_type %></span>
+      </div>
+      <% if (box.label_name) { %>
+      <div class="info-row">
+        <span class="info-row-label"><i class="fas fa-tag"></i> Label</span>
+        <span class="info-row-value"><%= box.label_name %></span>
+      </div>
+      <% } %>
+    </div>
+
+    <div class="qr-section">
+      <p class="qr-section-title"><i class="fas fa-qrcode"></i> QR Code</p>
+      <div class="qr-code-wrapper" id="qrCode">
+        <img src="<%= box.qr_code %>" alt="QR Code" class="qr-code-image" />
+        <p class="qr-hint"><i class="fas fa-download"></i> Click to download</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const qrCodeElement = document.getElementById("qrCode");
+  qrCodeElement.addEventListener("click", function () {
+    const link = document.createElement("a");
+    link.href = "<%= box.qr_code %>";
+    link.download = "QR_Code.png";
+    link.click();
+  });
+</script>
 
 <%- include("../partials/footer") %>
