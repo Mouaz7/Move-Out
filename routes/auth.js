@@ -183,10 +183,13 @@ router.get("/login", (req, res) => {
   res.render("login", { title: "MoveOut - Login", errorMessage: null });
 });
 
-// POST /login - Handle login
+// POST /login - Handle login with account lockout security
 router.post("/login", loginLimiter, async (req, res) => {
   const { email, psw } = req.body;
   let connection;
+  
+  const MAX_FAILED_ATTEMPTS = 5;
+  const LOCKOUT_DURATION_MINUTES = 15;
 
   try {
     connection = await db.getConnection();
@@ -201,6 +204,26 @@ router.post("/login", loginLimiter, async (req, res) => {
 
     const user = users[0];
 
+    // Check if account is locked
+    if (user.locked_until) {
+      const lockExpiry = new Date(user.locked_until);
+      if (lockExpiry > new Date()) {
+        const minutesLeft = Math.ceil((lockExpiry - new Date()) / (1000 * 60));
+        return res.status(403).render("login", {
+          title: "MoveOut - Login",
+          errorMessage: `Account is locked due to too many failed attempts. Try again in ${minutesLeft} minute(s).`,
+        });
+      } else {
+        // Lock expired, reset counters
+        await connection.query(
+          "UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE email = ?",
+          [email]
+        );
+        user.failed_login_attempts = 0;
+        user.locked_until = null;
+      }
+    }
+
     if (!user.is_active) {
       return res.status(400).render("login", {
         title: "MoveOut - Login",
@@ -210,11 +233,38 @@ router.post("/login", loginLimiter, async (req, res) => {
 
     const isValidPassword = await bcrypt.compare(psw, user.password_hash);
     if (!isValidPassword) {
-      return res.status(400).render("login", {
-        title: "MoveOut - Login",
-        errorMessage: "Invalid password.",
-      });
+      // Increment failed attempts
+      const newAttempts = (user.failed_login_attempts || 0) + 1;
+      
+      if (newAttempts >= MAX_FAILED_ATTEMPTS) {
+        // Lock the account
+        const lockUntil = new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000);
+        await connection.query(
+          "UPDATE users SET failed_login_attempts = ?, locked_until = ? WHERE email = ?",
+          [newAttempts, lockUntil.toISOString(), email]
+        );
+        return res.status(403).render("login", {
+          title: "MoveOut - Login",
+          errorMessage: `Too many failed attempts. Account locked for ${LOCKOUT_DURATION_MINUTES} minutes.`,
+        });
+      } else {
+        await connection.query(
+          "UPDATE users SET failed_login_attempts = ? WHERE email = ?",
+          [newAttempts, email]
+        );
+        const attemptsLeft = MAX_FAILED_ATTEMPTS - newAttempts;
+        return res.status(400).render("login", {
+          title: "MoveOut - Login",
+          errorMessage: `Invalid password. ${attemptsLeft} attempt(s) remaining before account lock.`,
+        });
+      }
     }
+
+    // Successful login - reset failed attempts
+    await connection.query(
+      "UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE email = ?",
+      [email]
+    );
 
     // Create session
     req.session.user = {

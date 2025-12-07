@@ -158,6 +158,53 @@ async function closeConnections() {
 }
 
 /**
+ * Run database migrations for PostgreSQL
+ * Adds new columns if they don't exist
+ */
+async function runMigrations() {
+  if (!isProduction) return;
+  
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    // Add account lockout columns if they don't exist
+    // PostgreSQL uses IF NOT EXISTS syntax in ALTER TABLE via a workaround
+    const migrations = [
+      `DO $$ 
+       BEGIN 
+         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='failed_login_attempts') THEN
+           ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0;
+         END IF;
+       END $$;`,
+      `DO $$ 
+       BEGIN 
+         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='locked_until') THEN
+           ALTER TABLE users ADD COLUMN locked_until TIMESTAMP;
+         END IF;
+       END $$;`
+    ];
+    
+    for (const sql of migrations) {
+      try {
+        await connection.query(sql);
+      } catch (err) {
+        // Ignore if column already exists
+        if (!err.message.includes('already exists')) {
+          console.error('Migration error:', err.message);
+        }
+      }
+    }
+    
+    console.log('✓ Database migrations completed');
+  } catch (error) {
+    console.error('Migration failed:', error.message);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+/**
  * Initialize admin user for PostgreSQL (production)
  * Uses ADMIN_EMAIL and ADMIN_PASSWORD from environment variables
  * This ensures only the owner can access admin panel
@@ -167,6 +214,9 @@ async function initializeAdmin() {
     // SQLite handles this in sqlitePool.js
     return;
   }
+
+  // Run migrations for account lockout columns
+  await runMigrations();
 
   const bcrypt = require("bcrypt");
   const adminEmail = process.env.ADMIN_EMAIL;

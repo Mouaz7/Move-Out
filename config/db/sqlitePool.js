@@ -43,6 +43,8 @@ function initializeSchema() {
       reset_token TEXT,
       reset_token_expires_at TEXT,
       storage_usage INTEGER DEFAULT 0,
+      failed_login_attempts INTEGER DEFAULT 0,
+      locked_until TEXT,
       last_activity TEXT DEFAULT CURRENT_TIMESTAMP,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
