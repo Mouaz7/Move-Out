@@ -95,7 +95,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(authRoutes); // Add the authRoutes to the app
+
 
 // Set the path to views
 app.set("views", path.join(__dirname, "views/pages"));

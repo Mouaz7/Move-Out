@@ -228,7 +228,17 @@ router.post("/login", loginLimiter, async (req, res) => {
     const adminRoutes = require("./admin");
     adminRoutes.addSession(req.sessionID, req.session.user);
 
-    res.redirect("/move/about");
+    // Save session before redirect (important for external session stores)
+    req.session.save((err) => {
+      if (err) {
+        console.error("Error saving session:", err);
+        return res.status(500).render("login", {
+          title: "MoveOut - Login",
+          errorMessage: "Session error. Please try again.",
+        });
+      }
+      res.redirect("/move/about");
+    });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).render("login", {
