@@ -24,6 +24,18 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
 </p>
 
+<p align="center">
+  <a href="https://move-out.onrender.com/move/about">
+    <img src="https://img.shields.io/badge/🌐_Live_Demo-move--out.onrender.com-00C853?style=for-the-badge" alt="Live Demo">
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-✅_Online_&_Tested-success" alt="Status">
+  <img src="https://img.shields.io/badge/Uptime-24%2F7-blue" alt="Uptime">
+  <img src="https://img.shields.io/badge/Deployed-Render.com-46E3B7?logo=render" alt="Deployed on Render">
+</p>
+
 ---
 
 ## 📋 Overview
