@@ -15,10 +15,10 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true, // Don't count successful logins
 });
 
-// Registration rate limiter - 3 attempts per hour
+// Registration rate limiter - 50 attempts per hour (generous for testing)
 const registrationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // Limit each IP to 3 registration requests per hour
+  max: 50, // Limit each IP to 50 registration requests per hour
   message: "Too many accounts created from this IP, please try again after an hour",
   standardHeaders: true,
   legacyHeaders: false,
