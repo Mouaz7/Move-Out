@@ -25,6 +25,16 @@ function csrfProtection(req, res, next) {
     return next();
   }
 
+  // Skip CSRF for OAuth routes (Google callback)
+  if (req.path.startsWith("/auth/google")) {
+    return next();
+  }
+
+  // Ensure session exists before accessing it
+  if (!req.session) {
+    return next();
+  }
+
   // Generate token if not exists
   if (!req.session.csrfToken) {
     req.session.csrfToken = generateToken();
