@@ -22,7 +22,8 @@ const transporter = nodemailer.createTransport({
 
 // Send verification email
 async function sendVerificationEmail(toEmail, token) {
-  const baseUrl = process.env.BASE_URL || "http://localhost:1338";
+  const baseUrl = process.env.BASE_URL || 
+    (process.env.NODE_ENV === "production" ? "https://move-out.onrender.com" : "http://localhost:1338");
   const verificationLink = `${baseUrl}/verify-email?token=${token}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -326,8 +327,9 @@ async function createBox(userId, boxName, labelName, labelImage, contentType, co
     const [result] = await connection.query("INSERT INTO boxes (user_id, box_name, label_name, label_image, content_type, content_data, access_token,is_private, pin_code) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)", [userId, boxName, labelName, labelImage, contentType, contentData, accessToken, isPrivate, pinCode]);
     const boxId = result.insertId;
 
-    // Create URL for the box
-    const baseUrl = process.env.BASE_URL || "http://localhost:1338";
+    // Create URL for the box - use production URL if in production mode
+    const baseUrl = process.env.BASE_URL || 
+      (process.env.NODE_ENV === "production" ? "https://move-out.onrender.com" : "http://localhost:1338");
     const boxUrl = `${baseUrl}/move/boxes/qr/${accessToken}`;
 
     // Generate the QR code
