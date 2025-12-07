@@ -157,12 +157,69 @@ async function closeConnections() {
   }
 }
 
+/**
+ * Initialize admin user for PostgreSQL (production)
+ * Uses ADMIN_EMAIL and ADMIN_PASSWORD from environment variables
+ * This ensures only the owner can access admin panel
+ */
+async function initializeAdmin() {
+  if (!isProduction) {
+    // SQLite handles this in sqlitePool.js
+    return;
+  }
+
+  const bcrypt = require("bcrypt");
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    console.log("⚠ ADMIN_EMAIL or ADMIN_PASSWORD not set - skipping admin creation");
+    return;
+  }
+
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    // Check if admin already exists
+    const [existingUsers] = await connection.query(
+      "SELECT user_id FROM users WHERE email = ?",
+      [adminEmail]
+    );
+
+    if (existingUsers && existingUsers.length > 0) {
+      // Update existing user to be admin
+      await connection.query(
+        "UPDATE users SET is_admin = TRUE WHERE email = ?",
+        [adminEmail]
+      );
+      console.log(`✓ Admin status confirmed for: ${adminEmail}`);
+    } else {
+      // Create new admin user
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(adminPassword, salt);
+      
+      await connection.query(
+        `INSERT INTO users (email, password_hash, profile_name, is_verified, is_active, is_admin) 
+         VALUES (?, ?, ?, TRUE, TRUE, TRUE)`,
+        [adminEmail, hashedPassword, "Admin"]
+      );
+      console.log(`✓ Admin user created: ${adminEmail}`);
+    }
+  } catch (error) {
+    console.error("Error initializing admin:", error.message);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
 module.exports = {
   getConnection,
   query,
   getPool,
   healthCheck,
   closeConnections,
+  initializeAdmin,
   isUsingSQLite: () => !isProduction,
   isUsingPostgreSQL: () => isProduction,
 };

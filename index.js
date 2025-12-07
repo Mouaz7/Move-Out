@@ -186,8 +186,11 @@ process.on("SIGTERM", async () => {
 });
 
 // Start the server
-const server = app.listen(port, "0.0.0.0", () => {
+const server = app.listen(port, "0.0.0.0", async () => {
   console.log(`✓ Server running on http://localhost:${port}/move`);
   console.log(`✓ Environment: ${process.env.NODE_ENV || "development"}`);
   console.log(`✓ Database: ${db.isUsingSQLite() ? "SQLite (local)" : "PostgreSQL (cloud)"}`);
+  
+  // Initialize admin user for production
+  await db.initializeAdmin();
 });
