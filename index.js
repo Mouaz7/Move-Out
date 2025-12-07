@@ -95,8 +95,6 @@ app.use(express.urlencoded({ extended: true }));
 // CSRF protection middleware - needs body parsers to run first
 app.use(csrfProtection);
 
-
-
 // Set the path to views
 app.set("views", path.join(__dirname, "views/pages"));
 // Set the view engine to EJS
