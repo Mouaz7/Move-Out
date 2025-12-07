@@ -42,7 +42,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= cspNonce %>">
   const qrCodeElement = document.getElementById("qrCode");
   qrCodeElement.addEventListener("click", function () {
     const link = document.createElement("a");

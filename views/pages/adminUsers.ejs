@@ -166,7 +166,7 @@
       <% } %>
     </div>
 
-    <script>
+    <script nonce="<%= cspNonce %>">
       // Hide the error or success message after 3 seconds
       setTimeout(() => {
         const errorMessage = document.querySelector(".error-message");

@@ -43,7 +43,7 @@
 
 <%- include("../partials/footer") %>
 
-<script>
+<script nonce="<%= cspNonce %>">
   document.addEventListener("DOMContentLoaded", () => {
     const errorMessage = document.getElementById("error-message");
     const submitButton = document.getElementById("submit-button");

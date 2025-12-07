@@ -74,7 +74,7 @@
   </form>
 </div>
 
-<script>
+<script nonce="<%= cspNonce %>">
   function selectLabelImage(label) {
     document.querySelectorAll(".label-option").forEach((option) => {
       option.classList.remove("selected");
