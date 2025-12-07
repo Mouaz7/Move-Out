@@ -70,10 +70,9 @@ function csrfProtection(req, res, next) {
     });
   }
 
-  // Token is valid - regenerate for next request (token rotation)
-  req.session.csrfToken = generateToken();
-  res.locals.csrfToken = req.session.csrfToken;
-
+  // Token is valid - proceed without rotation
+  // Note: We don't rotate here to avoid session sync issues in production
+  // Token rotation on every request can cause issues when session store is slow
   next();
 }
 
