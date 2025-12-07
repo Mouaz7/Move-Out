@@ -391,8 +391,27 @@ npm run test:integration
 
 ```
 Test Suites: 4 passed, 4 total
-Tests:       44 passed, 44 total
+Tests:       47 passed, 47 total
 ```
+
+### Test Coverage
+
+| Test Suite              | Tests | Description                              |
+| ----------------------- | ----- | ---------------------------------------- |
+| **Password Validation** | 7     | Strong password requirements             |
+| **Authentication**      | 12    | Login, register, verify, lockout         |
+| **Profile**             | 8     | Profile management, update, deactivation |
+| **Boxes**               | 20    | CRUD operations, file uploads            |
+
+### Security Tests
+
+| Test                              | Description                                 |
+| --------------------------------- | ------------------------------------------- |
+| **Account Lockout**               | Locks account after 5 failed login attempts |
+| **Lockout Duration**              | Account stays locked for 15 minutes         |
+| **Failed Attempt Tracking**       | Tracks and displays remaining attempts      |
+| **Successful Login Reset**        | Resets counter on successful login          |
+| **Deactivated Account Rejection** | Prevents login for deactivated accounts     |
 
 ---
 
