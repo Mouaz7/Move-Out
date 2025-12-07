@@ -201,7 +201,7 @@ async function initializeAdmin() {
     if (userExists) {
       // Update existing user: ensure admin status AND sync password from env
       await connection.query(
-        "UPDATE users SET is_admin = 1, password_hash = ? WHERE email = ?",
+        "UPDATE users SET is_admin = true, password_hash = ? WHERE email = ?",
         [hashedPassword, adminEmail]
       );
       console.log(`✓ Admin password synced and status confirmed for: ${adminEmail}`);
@@ -209,7 +209,7 @@ async function initializeAdmin() {
       // Create new admin user
       await connection.query(
         `INSERT INTO users (email, password_hash, profile_name, is_verified, is_active, is_admin) 
-         VALUES (?, ?, ?, 1, 1, 1)`,
+         VALUES (?, ?, ?, true, true, true)`,
         [adminEmail, hashedPassword, "Admin"]
       );
       console.log(`✓ Admin user created: ${adminEmail}`);
