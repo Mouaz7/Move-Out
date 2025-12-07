@@ -143,6 +143,9 @@ class SQLiteConnection {
 
   async query(sql, params = []) {
     try {
+      // Convert PostgreSQL boolean literals to SQLite integers
+      sql = sql.replace(/\bTRUE\b/gi, '1').replace(/\bFALSE\b/gi, '0');
+      
       // Convert MySQL placeholders (?) to SQLite format (already compatible)
       // Handle INSERT...RETURNING for getting lastInsertRowid
       const isInsert = sql.trim().toUpperCase().startsWith('INSERT');
