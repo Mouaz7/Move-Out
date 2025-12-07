@@ -11,13 +11,17 @@ const QRCode = require("qrcode");
 // Use the database abstraction layer instead of direct MySQL
 const { getConnection } = require("../config/db/database");
 
-// Configure nodemailer for email
+// Configure nodemailer for email with timeout settings
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  // Timeout settings to prevent hanging
+  connectionTimeout: 10000, // 10 seconds to connect
+  greetingTimeout: 10000,   // 10 seconds for greeting
+  socketTimeout: 15000,     // 15 seconds for socket
 });
 
 // Send verification email

@@ -369,7 +369,7 @@ router.post("/forgot-password", async (req, res) => {
       [resetCode, resetExpiry.toISOString(), email]
     );
 
-    // Send email
+    // Send email (non-blocking)
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -377,13 +377,15 @@ router.post("/forgot-password", async (req, res) => {
       text: `Your password reset code is: ${resetCode}\n\nThis code expires in 15 minutes.`,
     };
 
-    await transporter.sendMail(mailOptions);
+    const emailSent = await sendEmailAsync(mailOptions);
 
     res.render("reset_password", {
       title: "MoveOut - Reset Password",
       email: email,
       errorMessage: null,
-      successMessage: "Reset code sent to your email!",
+      successMessage: emailSent 
+        ? "Reset code sent to your email!"
+        : "Reset code generated. Email delivery may be delayed - please check your spam folder.",
     });
   } catch (error) {
     console.error("Error during password reset:", error);
