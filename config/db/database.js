@@ -194,18 +194,19 @@ async function initializeAdmin() {
       ? existingUsers.length > 0 
       : existingUsers && existingUsers.user_id;
 
+    // Always hash the password (for both create and update)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(adminPassword, salt);
+
     if (userExists) {
-      // Update existing user to be admin
+      // Update existing user: ensure admin status AND sync password from env
       await connection.query(
-        "UPDATE users SET is_admin = TRUE WHERE email = ?",
-        [adminEmail]
+        "UPDATE users SET is_admin = TRUE, password_hash = ? WHERE email = ?",
+        [hashedPassword, adminEmail]
       );
-      console.log(`✓ Admin status confirmed for: ${adminEmail}`);
+      console.log(`✓ Admin password synced and status confirmed for: ${adminEmail}`);
     } else {
       // Create new admin user
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(adminPassword, salt);
-      
       await connection.query(
         `INSERT INTO users (email, password_hash, profile_name, is_verified, is_active, is_admin) 
          VALUES (?, ?, ?, TRUE, TRUE, TRUE)`,
