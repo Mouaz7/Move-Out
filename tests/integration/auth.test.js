@@ -149,6 +149,8 @@ describe('Authentication Routes', () => {
         password_hash: hashedPassword,
         is_active: false,
         is_admin: false,
+        failed_login_attempts: 0,
+        locked_until: null,
       }]]);
 
       const response = await request(app)
@@ -161,7 +163,7 @@ describe('Authentication Routes', () => {
       expect(response.status).toBeGreaterThanOrEqual(400);
     });
 
-    test('should reject login with incorrect password', async () => {
+    test('should reject login with incorrect password and track attempts', async () => {
       const hashedPassword = await bcrypt.hash('CorrectPassword123!', 10);
       mockConnection.query.mockResolvedValue([[{
         user_id: 1,
@@ -169,6 +171,8 @@ describe('Authentication Routes', () => {
         password_hash: hashedPassword,
         is_active: true,
         is_admin: false,
+        failed_login_attempts: 0,
+        locked_until: null,
       }]]);
 
       const response = await request(app)
@@ -179,6 +183,89 @@ describe('Authentication Routes', () => {
         });
 
       expect(response.status).toBeGreaterThanOrEqual(400);
+      // Verify failed_login_attempts was incremented
+      expect(mockConnection.query).toHaveBeenCalledWith(
+        expect.stringContaining('UPDATE users SET failed_login_attempts'),
+        expect.any(Array)
+      );
+    });
+
+    test('should lock account after 5 failed attempts', async () => {
+      const hashedPassword = await bcrypt.hash('CorrectPassword123!', 10);
+      mockConnection.query.mockResolvedValue([[{
+        user_id: 1,
+        email: 'test@example.com',
+        password_hash: hashedPassword,
+        is_active: true,
+        is_admin: false,
+        failed_login_attempts: 4, // One more attempt will lock
+        locked_until: null,
+      }]]);
+
+      const response = await request(app)
+        .post('/login')
+        .send({
+          email: 'test@example.com',
+          psw: 'WrongPassword123!',
+        });
+
+      expect(response.status).toBe(403);
+      // Verify account was locked
+      expect(mockConnection.query).toHaveBeenCalledWith(
+        expect.stringContaining('locked_until'),
+        expect.any(Array)
+      );
+    });
+
+    test('should reject login for locked account', async () => {
+      const hashedPassword = await bcrypt.hash('Password123!', 10);
+      const futureDate = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+      
+      mockConnection.query.mockResolvedValue([[{
+        user_id: 1,
+        email: 'test@example.com',
+        password_hash: hashedPassword,
+        is_active: true,
+        is_admin: false,
+        failed_login_attempts: 5,
+        locked_until: futureDate.toISOString(),
+      }]]);
+
+      const response = await request(app)
+        .post('/login')
+        .send({
+          email: 'test@example.com',
+          psw: 'Password123!',
+        });
+
+      expect(response.status).toBe(403);
+    });
+
+    test('should reset failed attempts on successful login', async () => {
+      const hashedPassword = await bcrypt.hash('Password123!', 10);
+      mockConnection.query.mockResolvedValue([[{
+        user_id: 1,
+        email: 'test@example.com',
+        password_hash: hashedPassword,
+        is_active: true,
+        is_admin: false,
+        failed_login_attempts: 3,
+        locked_until: null,
+      }]]);
+
+      // Note: This test may need route setup - checking the query calls
+      const response = await request(app)
+        .post('/login')
+        .send({
+          email: 'test@example.com',
+          psw: 'Password123!',
+        });
+
+      // On successful login, should reset failed_login_attempts
+      expect(mockConnection.query).toHaveBeenCalledWith(
+        expect.stringContaining('failed_login_attempts = 0'),
+        expect.any(Array)
+      );
     });
   });
 
