@@ -98,7 +98,7 @@ router.post("/profile/deactivate", requireLogin, async (req, res) => {
 
   try {
     connection = await db.getConnection();
-    await connection.query("UPDATE users SET is_active = false WHERE user_id = ?", [userId]);
+    await connection.query("UPDATE users SET is_active = 0 WHERE user_id = ?", [userId]);
 
     req.session.destroy();
     res.clearCookie("connect.sid");
@@ -142,7 +142,7 @@ router.post("/profile/reactivate", async (req, res) => {
       });
     }
 
-    await connection.query("UPDATE users SET is_active = true WHERE email = ?", [email]);
+    await connection.query("UPDATE users SET is_active = 1 WHERE email = ?", [email]);
 
     return res.render("reactivate", {
       title: "MoveOut - Reactivate",

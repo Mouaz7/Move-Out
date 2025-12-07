@@ -133,7 +133,7 @@ async function activateUser(userId) {
   let connection;
   try {
     connection = await getConnection();
-    await connection.query("UPDATE users SET is_active = true WHERE user_id = ?", [userId]);
+    await connection.query("UPDATE users SET is_active = 1 WHERE user_id = ?", [userId]);
   } catch (error) {
     console.error("Error activating user:", error);
     throw error;
@@ -147,7 +147,7 @@ async function deactivateUser(userId) {
   let connection;
   try {
     connection = await getConnection();
-    await connection.query("UPDATE users SET is_active = false WHERE user_id = ?", [userId]);
+    await connection.query("UPDATE users SET is_active = 0 WHERE user_id = ?", [userId]);
   } catch (error) {
     console.error("Error deactivating user:", error);
     throw error;
@@ -245,7 +245,7 @@ async function sendMarketingEmails(subject, message) {
   let connection;
   try {
     connection = await getConnection();
-    const [users] = await connection.query("SELECT email FROM users WHERE is_active = true");
+    const [users] = await connection.query("SELECT email FROM users WHERE is_active = 1");
 
     for (const user of users) {
       const mailOptions = {
@@ -275,7 +275,7 @@ async function deactivateInactiveUsers() {
     connection = await getConnection();
     const oneMonthAgo = moment().subtract(1, "months").format("YYYY-MM-DD HH:mm:ss");
 
-    const [usersToDeactivate] = await connection.query("SELECT * FROM users WHERE last_activity < ? AND is_active = true", [oneMonthAgo]);
+    const [usersToDeactivate] = await connection.query("SELECT * FROM users WHERE last_activity < ? AND is_active = 1", [oneMonthAgo]);
 
     // Handle empty or undefined results
     if (!usersToDeactivate || !Array.isArray(usersToDeactivate) || usersToDeactivate.length === 0) {
@@ -299,7 +299,7 @@ async function deactivateInactiveUsers() {
         console.error(`Failed to send email to: ${user.email}`, err.message);
       }
 
-      await connection.query("UPDATE users SET is_active = false WHERE user_id = ?", [user.user_id]);
+      await connection.query("UPDATE users SET is_active = 0 WHERE user_id = ?", [user.user_id]);
     }
     console.log("Inactive users deactivated successfully");
   } catch (error) {

@@ -26,7 +26,7 @@
         </div>
         <% } %>
         <form action="/move/admin/send-marketing" method="POST">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="input-container">
             <label for="subject">Subject</label>
             <input type="text" id="subject" name="subject" required />
@@ -45,18 +45,21 @@
       <% } else if (showSessions) { %>
       <!-- Active Sessions Section -->
       <h1>Active Sessions</h1>
-      
+
       <!-- Logged in as indicator -->
       <div class="admin-info-bar">
-        <strong>Signed in as:</strong> <%= user ? user.profileName : 'Admin' %> (<%= user ? user.email : 'N/A' %>)
+        <strong>Signed in as:</strong> <%= user ? user.profileName : 'Admin' %>
+        (<%= user ? user.email : 'N/A' %>)
       </div>
-      
+
       <!-- Navigation buttons -->
       <div class="admin-nav-buttons">
         <a href="/move/admin/users" class="btn">All Users</a>
-        <a href="/move/admin/sessions" class="btn btn-primary">Active Sessions</a>
+        <a href="/move/admin/sessions" class="btn btn-primary"
+          >Active Sessions</a
+        >
       </div>
-      
+
       <% if (errorMessage) { %>
       <div class="error-message">
         <p><%= errorMessage %></p>
@@ -65,9 +68,7 @@
       <div class="success-message">
         <p><%= successMessage %></p>
       </div>
-      <% } %>
-      
-      <% if (activeSessions && activeSessions.length > 0) { %>
+      <% } %> <% if (activeSessions && activeSessions.length > 0) { %>
       <table>
         <thead>
           <tr>
@@ -81,14 +82,27 @@
         <tbody>
           <% activeSessions.forEach(session => { %>
           <tr>
-            <td><%= session.profileName || 'N/A' %></td>
-            <td><%= session.email %></td>
-            <td><%= new Date(session.loginTime).toLocaleString('sv-SE') %></td>
-            <td><%= new Date(session.lastActivity).toLocaleString('sv-SE') %></td>
-            <td>
-              <form action="/move/admin/kick-session" method="POST" style="display: inline" onsubmit="return confirm('Are you sure you want to terminate this session?');">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <input type="hidden" name="session_id" value="<%= session.fullSessionId %>" />
+            <td data-label="User"><%= session.profileName || 'N/A' %></td>
+            <td data-label="Email"><%= session.email %></td>
+            <td data-label="Login Time">
+              <%= new Date(session.loginTime).toLocaleString('sv-SE') %>
+            </td>
+            <td data-label="Last Activity">
+              <%= new Date(session.lastActivity).toLocaleString('sv-SE') %>
+            </td>
+            <td data-label="Action">
+              <form
+                action="/move/admin/kick-session"
+                method="POST"
+                style="display: inline"
+                onsubmit="return confirm('Are you sure you want to terminate this session?');"
+              >
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input
+                  type="hidden"
+                  name="session_id"
+                  value="<%= session.fullSessionId %>"
+                />
                 <button type="submit" class="btn btn-danger">Terminate</button>
               </form>
             </td>
@@ -100,23 +114,22 @@
       <div class="empty-state">
         <p>No active sessions at this time.</p>
       </div>
-      <% } %>
-      
-      <% } else { %>
+      <% } %> <% } else { %>
       <!-- Manage Users Section -->
       <h1>Admin Panel: Manage Users</h1>
-      
+
       <!-- Logged in as indicator -->
       <div class="admin-info-bar">
-        <strong>Signed in as:</strong> <%= user ? user.profileName : 'Admin' %> (<%= user ? user.email : 'N/A' %>)
+        <strong>Signed in as:</strong> <%= user ? user.profileName : 'Admin' %>
+        (<%= user ? user.email : 'N/A' %>)
       </div>
-      
+
       <!-- Navigation buttons -->
       <div class="admin-nav-buttons">
         <a href="/move/admin/users" class="btn btn-primary">All Users</a>
         <a href="/move/admin/sessions" class="btn">Active Sessions</a>
       </div>
-      
+
       <% if (errorMessage) { %>
       <div class="error-message">
         <p><%= errorMessage %></p>
@@ -141,22 +154,59 @@
         <tbody>
           <% users.forEach(user => { %>
           <tr>
-            <td><%= user.user_id %></td>
-            <td><%= user.email %></td>
-            <td><span class="status-badge <%= user.is_active ? 'status-active' : 'status-inactive' %>"><%= user.is_active ? 'Active' : 'Inactive' %></span></td>
-            <td><%= new Date(user.last_activity).toLocaleString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, }) %></td>
-            <td><%= new Date(user.created_at).toLocaleString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, }) %></td>
-            <td><%= user.storage_usage ? (user.storage_usage / 1024).toFixed(2) : 0 %> KB</td>
+            <td data-label="User ID"><%= user.user_id %></td>
+            <td data-label="Email"><%= user.email %></td>
+            <td data-label="Status">
+              <span
+                class="status-badge <%= user.is_active ? 'status-active' : 'status-inactive' %>"
+                ><%= user.is_active ? 'Active' : 'Inactive' %></span
+              >
+            </td>
+            <td data-label="Last Activity">
+              <%= new Date(user.last_activity).toLocaleString('en-GB', { year:
+              'numeric', month: 'short', day: 'numeric', hour: '2-digit',
+              minute: '2-digit', hour12: false, }) %>
+            </td>
+            <td data-label="Created At">
+              <%= new Date(user.created_at).toLocaleString('en-GB', { year:
+              'numeric', month: 'short', day: 'numeric', hour: '2-digit',
+              minute: '2-digit', hour12: false, }) %>
+            </td>
+            <td data-label="Storage">
+              <%= user.storage_usage ? (user.storage_usage / 1024).toFixed(2) :
+              0 %> KB
+            </td>
             <td class="actions-cell">
-              <form action="/move/admin/toggle-status" method="POST" style="display: inline">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <input type="hidden" name="user_id" value="<%= user.user_id %>" />
-                <button type="submit" class="btn btn-small"><%= user.is_active ? 'Deactivate' : 'Activate' %></button>
+              <form
+                action="/move/admin/toggle-status"
+                method="POST"
+                style="display: inline"
+              >
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input
+                  type="hidden"
+                  name="user_id"
+                  value="<%= user.user_id %>"
+                />
+                <button type="submit" class="btn btn-small">
+                  <%= user.is_active ? 'Deactivate' : 'Activate' %>
+                </button>
               </form>
-              <form action="/move/admin/delete" method="POST" style="display: inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <input type="hidden" name="user_id" value="<%= user.user_id %>" />
-                <button type="submit" class="btn btn-small btn-danger">Delete</button>
+              <form
+                action="/move/admin/delete"
+                method="POST"
+                style="display: inline"
+                onsubmit="return confirm('Are you sure you want to delete this user?');"
+              >
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input
+                  type="hidden"
+                  name="user_id"
+                  value="<%= user.user_id %>"
+                />
+                <button type="submit" class="btn btn-small btn-danger">
+                  Delete
+                </button>
               </form>
             </td>
           </tr>
