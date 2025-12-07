@@ -21,14 +21,30 @@ const {
 // Import shared validation utilities
 const { validatePassword } = require("../utils/validation");
 
-// Email transporter
+// Email transporter with timeout settings
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  // Timeout settings to prevent hanging
+  connectionTimeout: 10000, // 10 seconds to connect
+  greetingTimeout: 10000,   // 10 seconds for greeting
+  socketTimeout: 15000,     // 15 seconds for socket
 });
+
+// Async email sending helper that doesn't block
+async function sendEmailAsync(mailOptions) {
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully to:", mailOptions.to);
+    return true;
+  } catch (error) {
+    console.error("Error sending email:", error.message);
+    return false;
+  }
+}
 
 // GET /register - Show registration form
 router.get("/register", (req, res) => {
@@ -77,7 +93,7 @@ router.post("/register", registrationLimiter, async (req, res) => {
       [email, hashedPassword, name, isVerified, verificationCode]
     );
 
-    // Send verification email for non-Gmail users
+    // Send verification email for non-Gmail users (non-blocking)
     if (!isGmailUser) {
       const mailOptions = {
         from: process.env.EMAIL_USER,
@@ -86,21 +102,17 @@ router.post("/register", registrationLimiter, async (req, res) => {
         text: `Your verification code is: ${verificationCode}`,
       };
       
-      transporter.sendMail(mailOptions, (error) => {
-        if (error) {
-          console.error("Error sending email:", error);
-          return res.status(500).render("register", {
-            title: "Move - Register",
-            errorMessage: "Error sending verification email.",
-          });
-        }
-        return res.render("verify", {
-          title: "Move - Verify",
-          email: email,
-          successMessage: "Registration successful! Please enter the verification code sent to your email.",
-          errorMessage: null,
-          verified: false,
-        });
+      // Send email without blocking - if it fails, user can still verify later
+      const emailSent = await sendEmailAsync(mailOptions);
+      
+      return res.render("verify", {
+        title: "Move - Verify",
+        email: email,
+        successMessage: emailSent 
+          ? "Registration successful! Please enter the verification code sent to your email."
+          : "Registration successful! Email delivery may be delayed. Your verification code was generated - please contact support if you don't receive it.",
+        errorMessage: null,
+        verified: false,
       });
     } else {
       res.redirect("/move/login");
