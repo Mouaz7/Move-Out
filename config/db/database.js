@@ -79,7 +79,28 @@ async function getConnection() {
             pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
           }
           
+          // For INSERT queries, add RETURNING * if not present to get insertId
+          const isInsert = pgSql.trim().toUpperCase().startsWith("INSERT");
+          if (isInsert && !pgSql.toUpperCase().includes("RETURNING")) {
+            pgSql += " RETURNING *";
+          }
+          
           const result = await client.query(pgSql, pgParams);
+          
+          // For INSERT, simulate MySQL insertId
+          if (isInsert && result.rows.length > 0) {
+            const firstRow = result.rows[0];
+            // Find the ID column (usually first column ending with _id)
+            const idKey = Object.keys(firstRow).find(k => k.endsWith("_id")) || Object.keys(firstRow)[0];
+            return [{ insertId: firstRow[idKey], affectedRows: result.rowCount }, result.fields];
+          }
+          
+          // For UPDATE/DELETE, return affectedRows
+          if (pgSql.trim().toUpperCase().startsWith("UPDATE") || 
+              pgSql.trim().toUpperCase().startsWith("DELETE")) {
+            return [{ affectedRows: result.rowCount }, result.fields];
+          }
+          
           // Return in MySQL format [rows, fields]
           return [result.rows, result.fields];
         },
