@@ -228,10 +228,7 @@ router.post("/login", loginLimiter, async (req, res) => {
     const adminRoutes = require("./admin");
     adminRoutes.addSession(req.sessionID, req.session.user);
 
-    res.render("about", {
-      title: "MoveOut - About",
-      user: req.session.user,
-    });
+    res.redirect("/move/about");
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).render("login", {
