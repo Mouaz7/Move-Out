@@ -5,6 +5,9 @@ const path = require("path");
 const port = process.env.PORT || 1338;
 const app = express();
 
+// Trust first proxy (Render, Heroku, etc.) - required for rate limiting behind reverse proxy
+app.set('trust proxy', 1);
+
 // Import modular routes
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
