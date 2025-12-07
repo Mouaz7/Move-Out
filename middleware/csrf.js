@@ -49,7 +49,8 @@ function csrfProtection(req, res, next) {
   }
 
   // For state-changing methods, validate the token
-  const submittedToken = req.body._csrf || req.headers["x-csrf-token"];
+  // Check body, headers, AND query params (query for multipart/form-data since multer runs after CSRF)
+  const submittedToken = req.body?._csrf || req.headers["x-csrf-token"] || req.query._csrf;
 
   if (!submittedToken) {
     return res.status(403).render("error", {
