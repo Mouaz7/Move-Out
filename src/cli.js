@@ -143,7 +143,7 @@ async function deactivateUser(userId) {
   let connection;
   try {
     connection = await getConnection();
-    await connection.query("UPDATE users SET is_active = FALSE WHERE user_id = ?", [userId]);
+    await connection.query("UPDATE users SET is_active = 0 WHERE user_id = ?", [userId]);
   } catch (error) {
     console.error("Error deactivating user:", error);
     throw error;
@@ -273,9 +273,13 @@ async function deactivateInactiveUsers() {
 
     const [usersToDeactivate] = await connection.query("SELECT * FROM users WHERE last_activity < ? AND is_active = 1", [oneMonthAgo]);
 
-    if (usersToDeactivate.length === 0) {
+    // Handle empty or undefined results
+    if (!usersToDeactivate || !Array.isArray(usersToDeactivate) || usersToDeactivate.length === 0) {
+      console.log("No inactive users to deactivate");
       return;
     }
+
+    console.log(`Found ${usersToDeactivate.length} inactive users to deactivate`);
 
     for (const user of usersToDeactivate) {
       const mailOptions = {
@@ -288,11 +292,12 @@ async function deactivateInactiveUsers() {
       try {
         await transporter.sendMail(mailOptions);
       } catch (err) {
-        console.error(`Failed to send email to: ${user.email}`, err);
+        console.error(`Failed to send email to: ${user.email}`, err.message);
       }
 
-      await connection.query("UPDATE users SET is_active = FALSE WHERE user_id = ?", [user.user_id]);
+      await connection.query("UPDATE users SET is_active = 0 WHERE user_id = ?", [user.user_id]);
     }
+    console.log("Inactive users deactivated successfully");
   } catch (error) {
     console.error("Error deactivating inactive users:", error);
     throw error;
