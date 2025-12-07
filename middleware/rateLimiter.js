@@ -5,10 +5,10 @@ const rateLimit = require("express-rate-limit");
  * Prevents brute force attacks and API abuse
  */
 
-// Login rate limiter - 5 attempts per 15 minutes
+// Login rate limiter - 50 attempts per 15 minutes (generous for testing)
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 login requests per windowMs
+  max: 50, // Limit each IP to 50 login requests per windowMs
   message: "Too many login attempts from this IP, please try again after 15 minutes",
   standardHeaders: true,
   legacyHeaders: false,
@@ -24,19 +24,19 @@ const registrationLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// General API rate limiter - 100 requests per 15 minutes
+// General API rate limiter - 1000 requests per 15 minutes (generous for testing)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 1000, // Limit each IP to 1000 requests per windowMs
   message: "Too many requests from this IP, please try again after 15 minutes",
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// File upload rate limiter - 10 uploads per 15 minutes
+// File upload rate limiter - 100 uploads per 15 minutes (generous for testing)
 const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 100,
   message: "Too many file uploads, please try again later",
   standardHeaders: true,
   legacyHeaders: false,
