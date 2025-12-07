@@ -181,13 +181,20 @@ async function initializeAdmin() {
   try {
     connection = await getConnection();
     
+    console.log(`Checking for admin user: ${adminEmail}`);
+    
     // Check if admin already exists
     const [existingUsers] = await connection.query(
       "SELECT user_id FROM users WHERE email = ?",
       [adminEmail]
     );
 
-    if (existingUsers && existingUsers.length > 0) {
+    // Handle both array and object responses from different database adapters
+    const userExists = Array.isArray(existingUsers) 
+      ? existingUsers.length > 0 
+      : existingUsers && existingUsers.user_id;
+
+    if (userExists) {
       // Update existing user to be admin
       await connection.query(
         "UPDATE users SET is_admin = TRUE WHERE email = ?",
@@ -207,7 +214,7 @@ async function initializeAdmin() {
       console.log(`✓ Admin user created: ${adminEmail}`);
     }
   } catch (error) {
-    console.error("Error initializing admin:", error.message);
+    console.error("Error initializing admin:", error);
   } finally {
     if (connection) connection.release();
   }
