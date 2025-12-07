@@ -21,7 +21,14 @@ router.get("/auth/google/callback", passport.authenticate("google", { failureRed
     isAdmin: req.user.is_admin || false,
   };
 
-  res.redirect("/move/about");
+  // Save session before redirect (important for external session stores)
+  req.session.save((err) => {
+    if (err) {
+      console.error("Error saving session:", err);
+      return res.redirect("/move/login?error=session");
+    }
+    res.redirect("/move/about");
+  });
 });
 
 module.exports = router;
