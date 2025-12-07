@@ -84,16 +84,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// CSRF protection middleware
-app.use(csrfProtection);
-
 // Middleware to handle static files (CSS, JS, images, etc.)
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Middleware to handle form data and JSON
+// Middleware to handle form data and JSON - MUST come before CSRF
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// CSRF protection middleware - needs body parsers to run first
+app.use(csrfProtection);
 
 
 
