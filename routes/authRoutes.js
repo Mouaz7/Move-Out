@@ -13,6 +13,14 @@ router.get(
 
 // Google OAuth callback route
 router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/move/login" }), async (req, res) => {
+  // Double-check if account is active (defense in depth)
+  if (!req.user.is_active) {
+    req.logout(() => {
+      res.redirect("/move/login?error=deactivated");
+    });
+    return;
+  }
+
   // Successful authentication, set session values
   req.session.user = {
     id: req.user.user_id,
