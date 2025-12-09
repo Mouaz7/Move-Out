@@ -3,10 +3,10 @@
 <div class="admin-container">
   <% if (showDashboard) { %>
   <!-- Admin Dashboard -->
-  <h1>Admin Dashboard</h1>
+  <h1 data-i18n="adminDashboard">Admin Dashboard</h1>
   <!-- Marketing Email Form -->
   <div class="marketing-section">
-    <h2>Send Marketing Emails</h2>
+    <h2 data-i18n="sendMarketingEmails">Send Marketing Emails</h2>
     <% if (errorMessage) { %>
     <div class="error-message">
       <p><%= errorMessage %></p>
@@ -19,19 +19,19 @@
     <form action="/move/admin/send-marketing" method="POST">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div class="input-container">
-        <label for="subject">Subject</label>
+        <label for="subject" data-i18n="subject">Subject</label>
         <input type="text" id="subject" name="subject" required />
       </div>
       <div class="input-container">
-        <label for="message">Message</label>
+        <label for="message" data-i18n="message">Message</label>
         <textarea id="message" name="message" required></textarea>
       </div>
-      <button type="submit" class="btn">Send Emails</button>
+      <button type="submit" class="btn" data-i18n="sendEmails">Send Emails</button>
     </form>
   </div>
 
   <form action="/move/admin/deactivate-inactive" method="GET">
-    <button type="submit" class="btn">Deactivate Inactive Users</button>
+    <button type="submit" class="btn" data-i18n="deactivateInactiveUsers">Deactivate Inactive Users</button>
   </form>
   <% } else if (showSessions) { %>
   <!-- Active Sessions Section -->
@@ -63,7 +63,7 @@
       <tr>
         <th data-i18n="name">User</th>
         <th data-i18n="email">Email</th>
-        <th>Login Time</th>
+        <th data-i18n="loginTime">Login Time</th>
         <th data-i18n="lastActivity">Last Activity</th>
         <th data-i18n="actions">Action</th>
       </tr>
@@ -92,7 +92,7 @@
               name="session_id"
               value="<%= session.fullSessionId %>"
             />
-            <button type="submit" class="btn btn-danger">Terminate</button>
+            <button type="submit" class="btn btn-danger" data-i18n="terminate">Terminate</button>
           </form>
         </td>
       </tr>
@@ -101,11 +101,11 @@
   </table>
   <% } else { %>
   <div class="empty-state">
-    <p>No active sessions at this time.</p>
+    <p data-i18n="noActiveSessions">No active sessions at this time.</p>
   </div>
   <% } %> <% } else { %>
   <!-- Manage Users Section -->
-  <h1>Admin Panel: Manage Users</h1>
+  <h1 data-i18n="adminPanelManageUsers">Admin Panel: Manage Users</h1>
 
   <!-- Logged in as indicator -->
   <div class="admin-info-bar">

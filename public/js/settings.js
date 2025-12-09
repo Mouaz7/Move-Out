@@ -18,7 +18,13 @@ const ThemeManager = {
     const toggleBtn = document.getElementById('theme-toggle');
     if (toggleBtn) {
       toggleBtn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-      toggleBtn.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+      // Use translation for tooltip if LanguageManager is available
+      const lang = localStorage.getItem('moveout-lang') || 'en';
+      if (lang === 'sv') {
+        toggleBtn.title = theme === 'dark' ? 'Byt till ljust läge' : 'Byt till mörkt läge';
+      } else {
+        toggleBtn.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+      }
     }
     
     // Update nav link colors
@@ -224,6 +230,25 @@ const translations = {
     delete: 'Delete',
     signedInAs: 'Signed in as:',
     
+    // Admin Dashboard
+    adminDashboard: 'Admin Dashboard',
+    adminPanelManageUsers: 'Admin Panel: Manage Users',
+    sendMarketingEmails: 'Send Marketing Emails',
+    subject: 'Subject',
+    message: 'Message',
+    sendEmails: 'Send Emails',
+    deactivateInactiveUsers: 'Deactivate Inactive Users',
+    inactiveUsersDeactivated: 'Inactive users deactivated successfully',
+    noActiveSessions: 'No active sessions at this time.',
+    loginTime: 'Login Time',
+    terminate: 'Terminate',
+    confirmTerminate: 'Are you sure you want to terminate this session?',
+    confirmDeleteUser: 'Are you sure you want to delete this user?',
+    
+    // Theme
+    switchToDarkMode: 'Switch to Dark Mode',
+    switchToLightMode: 'Switch to Light Mode',
+    
     // Footer
     copyright: '© 2024 MoveOut. All rights reserved.',
     
@@ -394,6 +419,25 @@ const translations = {
     deactivateUser: 'Inaktivera',
     delete: 'Ta bort',
     signedInAs: 'Inloggad som:',
+    
+    // Admin Dashboard
+    adminDashboard: 'Administratörspanel',
+    adminPanelManageUsers: 'Adminpanel: Hantera användare',
+    sendMarketingEmails: 'Skicka marknadsföringsmail',
+    subject: 'Ämne',
+    message: 'Meddelande',
+    sendEmails: 'Skicka e-post',
+    deactivateInactiveUsers: 'Inaktivera inaktiva användare',
+    inactiveUsersDeactivated: 'Inaktiva användare har inaktiverats',
+    noActiveSessions: 'Inga aktiva sessioner just nu.',
+    loginTime: 'Inloggningstid',
+    terminate: 'Avsluta',
+    confirmTerminate: 'Är du säker på att du vill avsluta denna session?',
+    confirmDeleteUser: 'Är du säker på att du vill ta bort denna användare?',
+    
+    // Theme
+    switchToDarkMode: 'Byt till mörkt läge',
+    switchToLightMode: 'Byt till ljust läge',
     
     // Footer
     copyright: '© 2024 MoveOut. Alla rättigheter förbehållna.',
