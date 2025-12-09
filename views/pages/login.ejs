@@ -41,7 +41,14 @@
 
       <% if (errorMessage) { %>
       <div class="error-message" id="error-message">
+        <% if (errorMessage.includes('deactivated by an administrator')) { %>
+        <p>
+          <i class="fas fa-exclamation-triangle"></i>
+          <span data-i18n="accountDeactivatedByAdmin"><%= errorMessage %></span>
+        </p>
+        <% } else { %>
         <p><i class="fas fa-exclamation-triangle"></i> <%= errorMessage %></p>
+        <% } %>
       </div>
       <% } %>
 
