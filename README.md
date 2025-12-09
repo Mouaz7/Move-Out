@@ -318,8 +318,26 @@ Move-Out/
 │   └── unit/                # Unit tests
 ├── index.js                 # Application entry point
 ├── package.json             # Dependencies
+├── docs/                    # Documentation
+│   ├── CI_CD.md             # CI/CD pipeline guide
+│   ├── CV_SETUP.md          # CV download setup
+│   ├── DEPLOYMENT.md        # Deployment guide
+│   └── SETUP_SUMMARY.md     # Setup overview
 └── .env.example             # Environment template
 ```
+
+---
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the `/docs` folder:
+
+| Document                               | Description                                      |
+| -------------------------------------- | ------------------------------------------------ |
+| [CI/CD Pipeline](docs/CI_CD.md)        | GitHub Actions workflows, pipeline configuration |
+| [CV Setup](docs/CV_SETUP.md)           | How to configure CV download from Supabase       |
+| [Deployment](docs/DEPLOYMENT.md)       | Deployment guide for Render, Railway, Cloud Run  |
+| [Setup Summary](docs/SETUP_SUMMARY.md) | CI/CD and testing setup overview                 |
 
 ---
 
