@@ -12,9 +12,13 @@ router.get(
 );
 
 // Google OAuth callback route
-router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/move/login" }), async (req, res) => {
+router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/move/login?error=deactivated" }), async (req, res) => {
   // Double-check if account is active (defense in depth)
-  if (!req.user.is_active) {
+  // Handle both boolean and integer types from different databases
+  const isActive = req.user.is_active === true || req.user.is_active === 1;
+  console.log(`Google OAuth callback for ${req.user.email}: is_active = ${req.user.is_active} (type: ${typeof req.user.is_active}), isActive = ${isActive}`);
+  
+  if (!isActive) {
     req.logout(() => {
       res.redirect("/move/login?error=deactivated");
     });

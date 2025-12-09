@@ -27,8 +27,11 @@ passport.use(
         if (users.length > 0) {
           const user = users[0];
 
-          // Check if account is deactivated by admin
-          if (!user.is_active) {
+          // Check if account is deactivated by admin (handle both boolean and integer types)
+          const isActive = user.is_active === true || user.is_active === 1;
+          console.log(`Google OAuth for ${user.email}: is_active = ${user.is_active} (type: ${typeof user.is_active}), isActive = ${isActive}`);
+          
+          if (!isActive) {
             return done(null, false, { message: "Your account has been deactivated by an administrator. Please contact support for assistance." });
           }
 

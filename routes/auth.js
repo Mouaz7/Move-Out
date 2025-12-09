@@ -192,7 +192,14 @@ router.get("/login", (req, res) => {
   if (req.session.user) {
     return res.redirect("/move/about");
   }
-  res.render("login", { title: "MoveOut - Login", errorMessage: null });
+  
+  // Handle error query parameter (from Google OAuth deactivated account redirect)
+  let errorMessage = null;
+  if (req.query.error === "deactivated") {
+    errorMessage = "Your account has been deactivated by an administrator. Please contact support for assistance.";
+  }
+  
+  res.render("login", { title: "MoveOut - Login", errorMessage });
 });
 
 // POST /login - Handle login with account lockout security

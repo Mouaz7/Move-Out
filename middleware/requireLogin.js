@@ -14,10 +14,8 @@ module.exports = async (req, res, next) => {
   // Optional: Add session expiry check (sessions expire after maxAge in cookie config)
   // The session will be automatically destroyed by express-session after maxAge
 
-  // Optional: Check if user account is still active in database
+  // Check if user account is still active in database
   // This prevents deactivated users from using cached sessions
-  // Uncomment if you want real-time deactivation checks:
-  /*
   try {
     const db = require('../config/db/database');
     const connection = await db.getConnection();
@@ -27,15 +25,21 @@ module.exports = async (req, res, next) => {
     );
     connection.release();
 
-    if (!users || users.length === 0 || !users[0].is_active) {
+    if (!users || users.length === 0) {
       req.session.destroy();
       return res.redirect('/move/login');
+    }
+    
+    // Handle both boolean and integer types from different databases
+    const isActive = users[0].is_active === true || users[0].is_active === 1;
+    if (!isActive) {
+      req.session.destroy();
+      return res.redirect('/move/login?error=deactivated');
     }
   } catch (error) {
     console.error('Error checking user status:', error);
     // Continue anyway to avoid blocking on DB errors
   }
-  */
 
   next();
 };
