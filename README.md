@@ -49,6 +49,7 @@
 - 🔒 **PIN protection** for sensitive items
 - 🌐 **Access anywhere** - cloud-based solution
 - 🎨 **Beautiful UI** - modern glassmorphism design
+- 🌍 **Multi-language** - Swedish and English support
 
 ---
 
@@ -73,6 +74,7 @@
 | **Profile Management** | Update name, password, or deactivate account |
 | **Password Reset**     | Secure recovery via email                    |
 | **Auto-deactivation**  | Inactive accounts deactivated after 30 days  |
+| **Language Toggle**    | Switch between Swedish and English           |
 
 ### Sharing & Privacy
 

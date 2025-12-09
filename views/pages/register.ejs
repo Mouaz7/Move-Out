@@ -3,28 +3,28 @@
 <div class="signup-container">
   <form action="/move/register" method="POST" class="signup-form" id="signup-form">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <h1><i class="fas fa-user-plus"></i> Sign Up</h1>
-    <p class="info-text">Create an account to start organizing your move</p>
+    <h1><i class="fas fa-user-plus"></i> <span data-i18n="signUpTitle">Sign Up</span></h1>
+    <p class="info-text" data-i18n="createAccountInfo">Create an account to start organizing your move</p>
     <hr />
 
     <div class="input-container">
-      <label for="name"><i class="fas fa-user"></i> Name</label>
-      <input type="text" placeholder="Enter your name" id="name" name="name" required />
+      <label for="name"><i class="fas fa-user"></i> <span data-i18n="name">Name</span></label>
+      <input type="text" data-i18n-placeholder="enterName" placeholder="Enter your name" id="name" name="name" required />
     </div>
 
     <div class="input-container">
-      <label for="email"><i class="fas fa-envelope"></i> Email</label>
-      <input type="email" placeholder="Enter your email" id="email" name="email" required />
+      <label for="email"><i class="fas fa-envelope"></i> <span data-i18n="email">Email</span></label>
+      <input type="email" data-i18n-placeholder="enterEmail" placeholder="Enter your email" id="email" name="email" required />
     </div>
 
     <div class="input-container">
-      <label for="psw"><i class="fas fa-lock"></i> Password</label>
-      <input type="password" placeholder="Create a password" id="psw" name="psw" required />
+      <label for="psw"><i class="fas fa-lock"></i> <span data-i18n="password">Password</span></label>
+      <input type="password" data-i18n-placeholder="createPassword" placeholder="Create a password" id="psw" name="psw" required />
     </div>
 
     <div class="input-container">
-      <label for="psw_repeat"><i class="fas fa-check-circle"></i> Confirm Password</label>
-      <input type="password" placeholder="Repeat your password" id="psw_repeat" name="psw_repeat" required />
+      <label for="psw_repeat"><i class="fas fa-check-circle"></i> <span data-i18n="confirmPassword">Confirm Password</span></label>
+      <input type="password" data-i18n-placeholder="repeatPassword" placeholder="Repeat your password" id="psw_repeat" name="psw_repeat" required />
     </div>
 
     <% if (errorMessage) { %>
@@ -33,10 +33,10 @@
     </div>
     <% } %>
 
-    <button type="submit" class="signupbtn" id="submit-button"><i class="fas fa-rocket"></i> Sign Up</button>
+    <button type="submit" class="signupbtn" id="submit-button"><i class="fas fa-rocket"></i> <span data-i18n="signUpBtn">Sign Up</span></button>
 
     <div class="login-link" id="login-link">
-      <p>Already have an account? <a href="/move/login"><i class="fas fa-sign-in-alt"></i> Login here</a></p>
+      <p><span data-i18n="haveAccount">Already have an account?</span> <a href="/move/login"><i class="fas fa-sign-in-alt"></i> <span data-i18n="loginHere">Login here</span></a></p>
     </div>
   </form>
 </div>

@@ -1,235 +1,223 @@
 <%- include("../partials/header") %>
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title || 'Admin Panel - Manage Users' %></title>
-    <link rel="stylesheet" href="/style/style.css" />
-  </head>
-  <body>
-    <div class="admin-container">
-      <% if (showDashboard) { %>
-      <!-- Admin Dashboard -->
-      <h1>Admin Dashboard</h1>
-      <!-- Marketing Email Form -->
-      <div class="marketing-section">
-        <h2>Send Marketing Emails</h2>
-        <% if (errorMessage) { %>
-        <div class="error-message">
-          <p><%= errorMessage %></p>
-        </div>
-        <% } %> <% if (successMessage) { %>
-        <div class="success-message">
-          <p><%= successMessage %></p>
-        </div>
-        <% } %>
-        <form action="/move/admin/send-marketing" method="POST">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-          <div class="input-container">
-            <label for="subject">Subject</label>
-            <input type="text" id="subject" name="subject" required />
-          </div>
-          <div class="input-container">
-            <label for="message">Message</label>
-            <textarea id="message" name="message" required></textarea>
-          </div>
-          <button type="submit" class="btn">Send Emails</button>
-        </form>
-      </div>
-
-      <form action="/move/admin/deactivate-inactive" method="GET">
-        <button type="submit" class="btn">Deactivate Inactive Users</button>
-      </form>
-      <% } else if (showSessions) { %>
-      <!-- Active Sessions Section -->
-      <h1>Active Sessions</h1>
-
-      <!-- Logged in as indicator -->
-      <div class="admin-info-bar">
-        <strong>Signed in as:</strong> <%= user ? user.profileName : 'Admin' %>
-        (<%= user ? user.email : 'N/A' %>)
-      </div>
-
-      <!-- Navigation buttons -->
-      <div class="admin-nav-buttons">
-        <a href="/move/admin/users" class="btn">All Users</a>
-        <a href="/move/admin/sessions" class="btn btn-primary"
-          >Active Sessions</a
-        >
-      </div>
-
-      <% if (errorMessage) { %>
-      <div class="error-message">
-        <p><%= errorMessage %></p>
-      </div>
-      <% } %> <% if (successMessage) { %>
-      <div class="success-message">
-        <p><%= successMessage %></p>
-      </div>
-      <% } %> <% if (activeSessions && activeSessions.length > 0) { %>
-      <table>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Email</th>
-            <th>Login Time</th>
-            <th>Last Activity</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% activeSessions.forEach(session => { %>
-          <tr>
-            <td data-label="User"><%= session.profileName || 'N/A' %></td>
-            <td data-label="Email"><%= session.email %></td>
-            <td data-label="Login Time">
-              <%= new Date(session.loginTime).toLocaleString('sv-SE') %>
-            </td>
-            <td data-label="Last Activity">
-              <%= new Date(session.lastActivity).toLocaleString('sv-SE') %>
-            </td>
-            <td data-label="Action">
-              <form
-                action="/move/admin/kick-session"
-                method="POST"
-                style="display: inline"
-                onsubmit="return confirm('Are you sure you want to terminate this session?');"
-              >
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <input
-                  type="hidden"
-                  name="session_id"
-                  value="<%= session.fullSessionId %>"
-                />
-                <button type="submit" class="btn btn-danger">Terminate</button>
-              </form>
-            </td>
-          </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <% } else { %>
-      <div class="empty-state">
-        <p>No active sessions at this time.</p>
-      </div>
-      <% } %> <% } else { %>
-      <!-- Manage Users Section -->
-      <h1>Admin Panel: Manage Users</h1>
-
-      <!-- Logged in as indicator -->
-      <div class="admin-info-bar">
-        <strong>Signed in as:</strong> <%= user ? user.profileName : 'Admin' %>
-        (<%= user ? user.email : 'N/A' %>)
-      </div>
-
-      <!-- Navigation buttons -->
-      <div class="admin-nav-buttons">
-        <a href="/move/admin/users" class="btn btn-primary">All Users</a>
-        <a href="/move/admin/sessions" class="btn">Active Sessions</a>
-      </div>
-
-      <% if (errorMessage) { %>
-      <div class="error-message">
-        <p><%= errorMessage %></p>
-      </div>
-      <% } %> <% if (successMessage) { %>
-      <div class="success-message">
-        <p><%= successMessage %></p>
-      </div>
-      <% } %>
-      <table>
-        <thead>
-          <tr>
-            <th>User ID</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Last Activity</th>
-            <th>Created At</th>
-            <th>Storage Used (KB)</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% users.forEach(user => { %>
-          <tr>
-            <td data-label="User ID"><%= user.user_id %></td>
-            <td data-label="Email"><%= user.email %></td>
-            <td data-label="Status">
-              <span
-                class="status-badge <%= user.is_active ? 'status-active' : 'status-inactive' %>"
-                ><%= user.is_active ? 'Active' : 'Inactive' %></span
-              >
-            </td>
-            <td data-label="Last Activity">
-              <%= new Date(user.last_activity).toLocaleString('en-GB', { year:
-              'numeric', month: 'short', day: 'numeric', hour: '2-digit',
-              minute: '2-digit', hour12: false, }) %>
-            </td>
-            <td data-label="Created At">
-              <%= new Date(user.created_at).toLocaleString('en-GB', { year:
-              'numeric', month: 'short', day: 'numeric', hour: '2-digit',
-              minute: '2-digit', hour12: false, }) %>
-            </td>
-            <td data-label="Storage">
-              <%= user.storage_usage ? (user.storage_usage / 1024).toFixed(2) :
-              0 %> KB
-            </td>
-            <td class="actions-cell">
-              <form
-                action="/move/admin/toggle-status"
-                method="POST"
-                style="display: inline"
-              >
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <input
-                  type="hidden"
-                  name="user_id"
-                  value="<%= user.user_id %>"
-                />
-                <button type="submit" class="btn btn-small">
-                  <%= user.is_active ? 'Deactivate' : 'Activate' %>
-                </button>
-              </form>
-              <form
-                action="/move/admin/delete"
-                method="POST"
-                style="display: inline"
-                onsubmit="return confirm('Are you sure you want to delete this user?');"
-              >
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <input
-                  type="hidden"
-                  name="user_id"
-                  value="<%= user.user_id %>"
-                />
-                <button type="submit" class="btn btn-small btn-danger">
-                  Delete
-                </button>
-              </form>
-            </td>
-          </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <% } %>
+<div class="admin-container">
+  <% if (showDashboard) { %>
+  <!-- Admin Dashboard -->
+  <h1>Admin Dashboard</h1>
+  <!-- Marketing Email Form -->
+  <div class="marketing-section">
+    <h2>Send Marketing Emails</h2>
+    <% if (errorMessage) { %>
+    <div class="error-message">
+      <p><%= errorMessage %></p>
     </div>
+    <% } %> <% if (successMessage) { %>
+    <div class="success-message">
+      <p><%= successMessage %></p>
+    </div>
+    <% } %>
+    <form action="/move/admin/send-marketing" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="input-container">
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" required />
+      </div>
+      <div class="input-container">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required></textarea>
+      </div>
+      <button type="submit" class="btn">Send Emails</button>
+    </form>
+  </div>
 
-    <script nonce="<%= cspNonce %>">
-      // Hide the error or success message after 3 seconds
-      setTimeout(() => {
-        const errorMessage = document.querySelector(".error-message");
-        const successMessage = document.querySelector(".success-message");
-        if (errorMessage) {
-          errorMessage.style.display = "none";
-        }
-        if (successMessage) {
-          successMessage.style.display = "none";
-        }
-      }, 3000);
-    </script>
+  <form action="/move/admin/deactivate-inactive" method="GET">
+    <button type="submit" class="btn">Deactivate Inactive Users</button>
+  </form>
+  <% } else if (showSessions) { %>
+  <!-- Active Sessions Section -->
+  <h1 data-i18n="activeSessions">Active Sessions</h1>
 
-    <%- include("../partials/footer") %>
-  </body>
-</html>
+  <!-- Logged in as indicator -->
+  <div class="admin-info-bar">
+    <strong data-i18n="signedInAs">Signed in as:</strong> <%= user ? user.profileName : 'Admin' %>
+    (<%= user ? user.email : 'N/A' %>)
+  </div>
+
+  <!-- Navigation buttons -->
+  <div class="admin-nav-buttons">
+    <a href="/move/admin/users" class="btn" data-i18n="allUsers">All Users</a>
+    <a href="/move/admin/sessions" class="btn btn-primary" data-i18n="activeSessions">Active Sessions</a>
+  </div>
+
+  <% if (errorMessage) { %>
+  <div class="error-message">
+    <p><%= errorMessage %></p>
+  </div>
+  <% } %> <% if (successMessage) { %>
+  <div class="success-message">
+    <p><%= successMessage %></p>
+  </div>
+  <% } %> <% if (activeSessions && activeSessions.length > 0) { %>
+  <table>
+    <thead>
+      <tr>
+        <th data-i18n="name">User</th>
+        <th data-i18n="email">Email</th>
+        <th>Login Time</th>
+        <th data-i18n="lastActivity">Last Activity</th>
+        <th data-i18n="actions">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% activeSessions.forEach(session => { %>
+      <tr>
+        <td data-label="User"><%= session.profileName || 'N/A' %></td>
+        <td data-label="Email"><%= session.email %></td>
+        <td data-label="Login Time">
+          <%= new Date(session.loginTime).toLocaleString('sv-SE') %>
+        </td>
+        <td data-label="Last Activity">
+          <%= new Date(session.lastActivity).toLocaleString('sv-SE') %>
+        </td>
+        <td data-label="Action">
+          <form
+            action="/move/admin/kick-session"
+            method="POST"
+            style="display: inline"
+            onsubmit="return confirm('Are you sure you want to terminate this session?');"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input
+              type="hidden"
+              name="session_id"
+              value="<%= session.fullSessionId %>"
+            />
+            <button type="submit" class="btn btn-danger">Terminate</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } else { %>
+  <div class="empty-state">
+    <p>No active sessions at this time.</p>
+  </div>
+  <% } %> <% } else { %>
+  <!-- Manage Users Section -->
+  <h1>Admin Panel: Manage Users</h1>
+
+  <!-- Logged in as indicator -->
+  <div class="admin-info-bar">
+    <strong data-i18n="signedInAs">Signed in as:</strong> Admin
+    (<%= user ? user.email : 'N/A' %>)
+  </div>
+
+  <!-- Navigation buttons -->
+  <div class="admin-nav-buttons">
+    <a href="/move/admin/users" class="btn btn-primary" data-i18n="allUsers">All Users</a>
+    <a href="/move/admin/sessions" class="btn" data-i18n="activeSessions">Active Sessions</a>
+  </div>
+
+  <% if (errorMessage) { %>
+  <div class="error-message">
+    <p><%= errorMessage %></p>
+  </div>
+  <% } %> <% if (successMessage) { %>
+  <div class="success-message">
+    <p><%= successMessage %></p>
+  </div>
+  <% } %>
+  <table>
+    <thead>
+      <tr>
+        <th data-i18n="userId">User ID</th>
+        <th data-i18n="email">Email</th>
+        <th data-i18n="status">Status</th>
+        <th data-i18n="lastActivity">Last Activity</th>
+        <th data-i18n="createdAt">Created At</th>
+        <th data-i18n="storageUsed">Storage Used (KB)</th>
+        <th data-i18n="actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(user => { %>
+      <tr>
+        <td data-label="User ID"><%= user.user_id %></td>
+        <td data-label="Email"><%= user.email %></td>
+        <td data-label="Status">
+          <span
+            class="status-badge <%= user.is_active ? 'status-active' : 'status-inactive' %>"
+          >
+            <span data-i18n="<%= user.is_active ? 'active' : 'inactive' %>"><%= user.is_active ? 'Active' : 'Inactive' %></span>
+          </span>
+        </td>
+        <td data-label="Last Activity">
+          <%= new Date(user.last_activity).toLocaleString('en-GB', { year:
+          'numeric', month: 'short', day: 'numeric', hour: '2-digit',
+          minute: '2-digit', hour12: false, }) %>
+        </td>
+        <td data-label="Created At">
+          <%= new Date(user.created_at).toLocaleString('en-GB', { year:
+          'numeric', month: 'short', day: 'numeric', hour: '2-digit',
+          minute: '2-digit', hour12: false, }) %>
+        </td>
+        <td data-label="Storage">
+          <%= user.storage_usage ? (user.storage_usage / 1024).toFixed(2) :
+          0 %> KB
+        </td>
+        <td class="actions-cell">
+          <form
+            action="/move/admin/toggle-status"
+            method="POST"
+            style="display: inline"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input
+              type="hidden"
+              name="user_id"
+              value="<%= user.user_id %>"
+            />
+            <button type="submit" class="btn btn-small">
+              <span data-i18n="<%= user.is_active ? 'deactivateUser' : 'activate' %>"><%= user.is_active ? 'Deactivate' : 'Activate' %></span>
+            </button>
+          </form>
+          <form
+            action="/move/admin/delete"
+            method="POST"
+            style="display: inline"
+            onsubmit="return confirm('Are you sure you want to delete this user?');"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input
+              type="hidden"
+              name="user_id"
+              value="<%= user.user_id %>"
+            />
+            <button type="submit" class="btn btn-small btn-danger">
+              <span data-i18n="delete">Delete</span>
+            </button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</div>
+
+<script nonce="<%= cspNonce %>">
+  // Hide the error or success message after 3 seconds
+  setTimeout(() => {
+    const errorMessage = document.querySelector(".error-message");
+    const successMessage = document.querySelector(".success-message");
+    if (errorMessage) {
+      errorMessage.style.display = "none";
+    }
+    if (successMessage) {
+      successMessage.style.display = "none";
+    }
+  }, 3000);
+</script>
+
+<%- include("../partials/footer") %>

@@ -2,17 +2,17 @@
 
 <div class="profile-container">
   <div class="card">
-    <h2><i class="fas fa-user-circle"></i> Profile Overview</h2>
+    <h2><i class="fas fa-user-circle"></i> <span data-i18n="profileOverview">Profile Overview</span></h2>
     <div class="static-info">
-      <p><strong><i class="fas fa-user"></i> Name:</strong> <span class="text-muted"><%= user.profileName %></span></p>
-      <p><strong><i class="fas fa-envelope"></i> Email:</strong> <span class="text-muted"><%= user.email %></span></p>
+      <p><strong><i class="fas fa-user"></i> <span data-i18n="name">Name</span>:</strong> <span class="text-muted"><%= user.profileName %></span></p>
+      <p><strong><i class="fas fa-envelope"></i> <span data-i18n="email">Email</span>:</strong> <span class="text-muted"><%= user.email %></span></p>
     </div>
-    <form action="/move/profile/deactivate" method="POST" onsubmit="return confirm('Are you sure you want to deactivate your account?');">
+    <form action="/move/profile/deactivate" method="POST" onsubmit="return confirm(LanguageManager.get('confirmDeactivate'));">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button type="submit" class="btn btn-danger"><i class="fas fa-user-slash"></i> Deactivate Account</button>
+      <button type="submit" class="btn btn-danger"><i class="fas fa-user-slash"></i> <span data-i18n="deactivate">Deactivate Account</span></button>
     </form>
 
-    <h2 style="margin-top: 32px;"><i class="fas fa-user-edit"></i> Update Profile</h2>
+    <h2 style="margin-top: 32px;"><i class="fas fa-user-edit"></i> <span data-i18n="updateProfile">Update Profile</span></h2>
     
     <% if (errorMessage) { %>
     <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> <%= errorMessage %></div>
@@ -24,27 +24,27 @@
     <form id="updateProfileForm" action="/move/profile/update" method="POST" class="form-profile-update">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="form-group">
-        <label for="profileName" class="form-label"><i class="fas fa-id-card"></i> Name</label>
+        <label for="profileName" class="form-label"><i class="fas fa-id-card"></i> <span data-i18n="name">Name</span></label>
         <input type="text" id="profileName" name="profileName" class="form-control" value="<%= user.profileName %>" required />
       </div>
 
       <div class="form-group">
-        <label for="email" class="form-label"><i class="fas fa-at"></i> Email</label>
+        <label for="email" class="form-label"><i class="fas fa-at"></i> <span data-i18n="email">Email</span></label>
         <input type="email" id="email" name="email" class="form-control" value="<%= user.email %>" required readonly />
       </div>
 
       <div class="form-group">
-        <label for="currentPassword" class="form-label"><i class="fas fa-lock"></i> Current Password</label>
-        <input type="password" id="currentPassword" name="currentPassword" class="form-control" placeholder="Enter current password" required />
+        <label for="currentPassword" class="form-label"><i class="fas fa-lock"></i> <span data-i18n="currentPassword">Current Password</span></label>
+        <input type="password" id="currentPassword" name="currentPassword" class="form-control" data-i18n-placeholder="enterCurrentPassword" placeholder="Enter current password" required />
       </div>
 
       <div class="form-group">
-        <label for="newPassword" class="form-label"><i class="fas fa-key"></i> New Password</label>
-        <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter new password (optional)" />
-        <small class="text-muted">Leave blank to keep current password.</small>
+        <label for="newPassword" class="form-label"><i class="fas fa-key"></i> <span data-i18n="newPassword">New Password</span></label>
+        <input type="password" id="newPassword" name="newPassword" class="form-control" data-i18n-placeholder="enterNewPassword" placeholder="Enter new password (optional)" />
+        <small class="text-muted" data-i18n="leaveBlank">Leave blank to keep current password.</small>
       </div>
 
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Profile</button>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <span data-i18n="updateBtn">Update Profile</span></button>
     </form>
   </div>
 </div>

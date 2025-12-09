@@ -1,7 +1,7 @@
 <%- include("../partials/header") %>
 
 <div class="reactivation-container">
-    <h1>Reactivate Account</h1>
+    <h1 data-i18n="reactivateAccount">Reactivate Account</h1>
 
     <% if (errorMessage) { %>
         <div class="error-message">
@@ -18,11 +18,11 @@
     <form action="/move/profile/reactivate" method="POST">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="form-group">
-            <label for="email">Enter your email to reactivate your account</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <label for="email" data-i18n="reactivateInfo">Enter your email to reactivate your account</label>
+            <input type="email" id="email" name="email" data-i18n-placeholder="enterEmail" placeholder="Enter your email" required>
         </div>
 
-        <button type="submit" class="btn">Reactivate Account</button>
+        <button type="submit" class="btn" data-i18n="reactivateBtn">Reactivate Account</button>
     </form>
 </div>
 

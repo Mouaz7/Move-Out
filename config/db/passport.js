@@ -27,9 +27,9 @@ passport.use(
         if (users.length > 0) {
           const user = users[0];
 
-          // Check if account is deactivated
+          // Check if account is deactivated by admin
           if (!user.is_active) {
-            return done(null, false, { message: "Your account is deactivated. Please contact support." });
+            return done(null, false, { message: "Your account has been deactivated by an administrator. Please contact support for assistance." });
           }
 
           // Check if user has a password set

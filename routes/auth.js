@@ -237,9 +237,9 @@ router.post("/login", loginLimiter, async (req, res) => {
     }
 
     if (!user.is_active) {
-      return res.status(400).render("login", {
+      return res.status(403).render("login", {
         title: "MoveOut - Login",
-        errorMessage: "Your account is deactivated. Please contact support.",
+        errorMessage: "Your account has been deactivated by an administrator. Please contact support for assistance.",
       });
     }
 

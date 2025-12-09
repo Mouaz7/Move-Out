@@ -6,7 +6,7 @@
       <h1><%= box.box_name %></h1>
       <span class="privacy-badge <%= box.is_private === 1 ? 'private' : 'public' %>">
         <i class="fas fa-<%= box.is_private === 1 ? 'lock' : 'globe' %>"></i>
-        <%= box.is_private === 1 ? "Private" : "Public" %>
+        <span data-i18n="<%= box.is_private === 1 ? 'private' : 'public' %>"><%= box.is_private === 1 ? "Private" : "Public" %></span>
       </span>
     </div>
 
@@ -21,22 +21,22 @@
 
     <div class="box-info-list">
       <div class="info-row">
-        <span class="info-row-label"><i class="fas fa-file-alt"></i> Content Type</span>
+        <span class="info-row-label"><i class="fas fa-file-alt"></i> <span data-i18n="contentType">Content Type</span></span>
         <span class="info-row-value"><%= box.content_type %></span>
       </div>
       <% if (box.label_name) { %>
       <div class="info-row">
-        <span class="info-row-label"><i class="fas fa-tag"></i> Label</span>
+        <span class="info-row-label"><i class="fas fa-tag"></i> <span data-i18n="label">Label</span></span>
         <span class="info-row-value"><%= box.label_name %></span>
       </div>
       <% } %>
     </div>
 
     <div class="qr-section">
-      <p class="qr-section-title"><i class="fas fa-qrcode"></i> QR Code</p>
+      <p class="qr-section-title"><i class="fas fa-qrcode"></i> <span data-i18n="qrCode">QR Code</span></p>
       <div class="qr-code-wrapper" id="qrCode">
         <img src="<%= box.qr_code %>" alt="QR Code" class="qr-code-image" />
-        <p class="qr-hint"><i class="fas fa-download"></i> Click to download</p>
+        <p class="qr-hint"><i class="fas fa-download"></i> <span data-i18n="clickToDownload">Click to download</span></p>
       </div>
     </div>
   </div>
