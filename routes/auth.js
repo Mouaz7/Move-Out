@@ -236,7 +236,12 @@ router.post("/login", loginLimiter, async (req, res) => {
       }
     }
 
-    if (!user.is_active) {
+    // Check if account is deactivated (handle both boolean and integer types)
+    // PostgreSQL returns boolean, SQLite returns integer
+    const isActive = user.is_active === true || user.is_active === 1;
+    console.log(`Login attempt for ${email}: is_active = ${user.is_active} (type: ${typeof user.is_active}), isActive = ${isActive}`);
+    
+    if (!isActive) {
       return res.status(403).render("login", {
         title: "MoveOut - Login",
         errorMessage: "Your account has been deactivated by an administrator. Please contact support for assistance.",
