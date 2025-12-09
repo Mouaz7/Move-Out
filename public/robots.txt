@@ -16,4 +16,4 @@ Disallow: /move/admin
 Disallow: /uploads/
 
 # Sitemap location
-Sitemap: https://move-out-mz.onrender.com/sitemap.xml
+Sitemap: https://move-out.onrender.com/sitemap.xml

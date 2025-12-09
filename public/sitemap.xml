@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://move-out-mz.onrender.com/move/about</loc>
+    <loc>https://move-out.onrender.com/move/about</loc>
     <lastmod>2024-12-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://move-out-mz.onrender.com/move/login</loc>
+    <loc>https://move-out.onrender.com/move/login</loc>
     <lastmod>2024-12-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://move-out-mz.onrender.com/move/register</loc>
+    <loc>https://move-out.onrender.com/move/register</loc>
     <lastmod>2024-12-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
