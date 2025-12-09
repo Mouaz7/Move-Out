@@ -8,16 +8,7 @@ module.exports = {
     '!tests/**',
     '!jest.config.js',
   ],
-  // Coverage thresholds disabled - current coverage ~3.5%
-  // Enable when coverage improves:
-  // coverageThreshold: {
-  //   global: {
-  //     branches: 80,
-  //     functions: 80,
-  //     lines: 80,
-  //     statements: 80,
-  //   },
-  // },
+
   testMatch: [
     '**/tests/**/*.test.js',
   ],
