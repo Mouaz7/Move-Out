@@ -6,7 +6,7 @@ const port = process.env.PORT || 1338;
 const app = express();
 
 // Trust first proxy (Render, Heroku, etc.) - required for rate limiting behind reverse proxy
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 
 // Import modular routes
 const authRoutes = require("./routes/auth");
@@ -104,7 +104,7 @@ app.set("view engine", "ejs");
 if (process.env.NODE_ENV !== "production") {
   app.use((req, res, next) => {
     // Only log page requests, not static files
-    if (!req.url.includes('.') && !req.url.includes('well-known')) {
+    if (!req.url.includes(".") && !req.url.includes("well-known")) {
       console.log(`${req.method} ${req.url}`);
     }
     next();
@@ -130,6 +130,11 @@ app.get("/health", async (req, res) => {
 });
 
 // ===== ROUTES =====
+
+// Root redirect for Google verification and SEO
+app.get("/", (req, res) => {
+  res.redirect("/move/about");
+});
 
 // Public routes (about page, QR access, root redirect)
 app.use("/move", publicRoutes);
@@ -189,8 +194,12 @@ process.on("SIGTERM", async () => {
 const server = app.listen(port, "0.0.0.0", async () => {
   console.log(`✓ Server running on http://localhost:${port}/move`);
   console.log(`✓ Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`✓ Database: ${db.isUsingSQLite() ? "SQLite (local)" : "PostgreSQL (cloud)"}`);
-  
+  console.log(
+    `✓ Database: ${
+      db.isUsingSQLite() ? "SQLite (local)" : "PostgreSQL (cloud)"
+    }`
+  );
+
   // Initialize admin user for production
   await db.initializeAdmin();
 });
