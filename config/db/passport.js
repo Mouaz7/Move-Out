@@ -9,67 +9,72 @@ const { getConnection } = require("./database");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:1338/auth/google/callback",
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      let connection;
-      try {
-        connection = await getConnection();
+// Only configure Google OAuth if credentials are provided
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:1338/auth/google/callback",
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        let connection;
+        try {
+          connection = await getConnection();
 
-        // Check if user already exists
-        const [users] = await connection.query("SELECT * FROM users WHERE email = ?", [profile.emails[0].value]);
+          // Check if user already exists
+          const [users] = await connection.query("SELECT * FROM users WHERE email = ?", [profile.emails[0].value]);
 
-        if (users.length > 0) {
-          const user = users[0];
+          if (users.length > 0) {
+            const user = users[0];
 
-          // Check if account is deactivated by admin (handle both boolean and integer types)
-          const isActive = user.is_active === true || user.is_active === 1;
-          console.log(`Google OAuth for ${user.email}: is_active = ${user.is_active} (type: ${typeof user.is_active}), isActive = ${isActive}`);
-          
-          if (!isActive) {
-            return done(null, false, { message: "Your account has been deactivated by an administrator. Please contact support for assistance." });
+            // Check if account is deactivated by admin (handle both boolean and integer types)
+            const isActive = user.is_active === true || user.is_active === 1;
+            console.log(`Google OAuth for ${user.email}: is_active = ${user.is_active} (type: ${typeof user.is_active}), isActive = ${isActive}`);
+            
+            if (!isActive) {
+              return done(null, false, { message: "Your account has been deactivated by an administrator. Please contact support for assistance." });
+            }
+
+            // Check if user has a password set
+            if (!user.password_hash) {
+              return done(null, false, { message: "Please set your password." });
+            }
+
+            return done(null, user);
+          } else {
+            // Create a new user in the database
+            const newUser = {
+              email: profile.emails[0].value,
+              profile_name: profile.displayName,
+              is_verified: 1, // Use 1 instead of true for SQLite compatibility
+            };
+
+            // Generate a secure random password for Google OAuth users
+            const randomPassword = crypto.randomBytes(32).toString("hex");
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(randomPassword, salt);
+            const [result] = await connection.query(
+              "INSERT INTO users (email, profile_name, is_verified, password_hash) VALUES (?, ?, ?, ?)",
+              [newUser.email, newUser.profile_name, newUser.is_verified, hashedPassword]
+            );
+
+            newUser.user_id = result.insertId;
+            return done(null, newUser);
           }
-
-          // Check if user has a password set
-          if (!user.password_hash) {
-            return done(null, false, { message: "Please set your password." });
-          }
-
-          return done(null, user);
-        } else {
-          // Create a new user in the database
-          const newUser = {
-            email: profile.emails[0].value,
-            profile_name: profile.displayName,
-            is_verified: 1, // Use 1 instead of true for SQLite compatibility
-          };
-
-          // Generate a secure random password for Google OAuth users
-          const randomPassword = crypto.randomBytes(32).toString("hex");
-          const salt = await bcrypt.genSalt(10);
-          const hashedPassword = await bcrypt.hash(randomPassword, salt);
-          const [result] = await connection.query(
-            "INSERT INTO users (email, profile_name, is_verified, password_hash) VALUES (?, ?, ?, ?)",
-            [newUser.email, newUser.profile_name, newUser.is_verified, hashedPassword]
-          );
-
-          newUser.user_id = result.insertId;
-          return done(null, newUser);
+        } catch (error) {
+          console.error("Error in Google Strategy:", error.message);
+          return done(error, false);
+        } finally {
+          if (connection) connection.release();
         }
-      } catch (error) {
-        console.error("Error in Google Strategy:", error.message);
-        return done(error, false);
-      } finally {
-        if (connection) connection.release();
       }
-    }
-  )
-);
+    )
+  );
+} else {
+  console.log("⚠ Google OAuth not configured - GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET missing");
+}
 
 passport.serializeUser((user, done) => {
   done(null, user.user_id);
