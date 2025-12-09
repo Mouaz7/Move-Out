@@ -1,0 +1,19 @@
+# Robots.txt for MoveOut
+# https://www.robotstxt.org/
+
+User-agent: *
+Allow: /
+
+# Allow all search engines to crawl public pages
+Allow: /move/about
+Allow: /move/login
+Allow: /move/register
+
+# Disallow private/authenticated areas
+Disallow: /move/boxes
+Disallow: /move/profile
+Disallow: /move/admin
+Disallow: /uploads/
+
+# Sitemap location
+Sitemap: https://move-out-mz.onrender.com/sitemap.xml
