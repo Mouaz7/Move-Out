@@ -57,6 +57,9 @@ if (process.env.NODE_ENV === "production" && process.env.SUPABASE_DB_URL) {
   const pgPool = new Pool({
     connectionString: process.env.SUPABASE_DB_URL,
     ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 60000, // 60 seconds for Render cold start
+    idleTimeoutMillis: 30000,
+    max: 5,
   });
   sessionStore = new pgSession({
     pool: pgPool,

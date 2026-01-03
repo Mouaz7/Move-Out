@@ -16,7 +16,7 @@ let postgresPool = null;
 // Initialize SQLite pool for local development
 function initializeSQLitePool() {
   if (sqlitePool) return sqlitePool;
-  
+
   sqlitePool = require("./sqlitePool");
   return sqlitePool;
 }
@@ -39,7 +39,7 @@ function initializePostgreSQLPool() {
     },
     max: 10,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
+    connectionTimeoutMillis: 60000, // 60 seconds to handle Render cold start
   });
 
   console.log("✓ PostgreSQL connection pool initialized");
@@ -59,7 +59,7 @@ function getPool() {
 async function getConnection() {
   try {
     const pool = getPool();
-    
+
     if (!isProduction) {
       // SQLite - use our adapter
       const connection = await pool.getConnection();
@@ -73,34 +73,41 @@ async function getConnection() {
           // Convert MySQL ? placeholders to PostgreSQL $1, $2, etc.
           let pgSql = sql;
           let pgParams = params || [];
-          
+
           if (params && params.length > 0) {
             let paramIndex = 1;
             pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
           }
-          
+
           // For INSERT queries, add RETURNING * if not present to get insertId
           const isInsert = pgSql.trim().toUpperCase().startsWith("INSERT");
           if (isInsert && !pgSql.toUpperCase().includes("RETURNING")) {
             pgSql += " RETURNING *";
           }
-          
+
           const result = await client.query(pgSql, pgParams);
-          
+
           // For INSERT, simulate MySQL insertId
           if (isInsert && result.rows.length > 0) {
             const firstRow = result.rows[0];
             // Find the ID column (usually first column ending with _id)
-            const idKey = Object.keys(firstRow).find(k => k.endsWith("_id")) || Object.keys(firstRow)[0];
-            return [{ insertId: firstRow[idKey], affectedRows: result.rowCount }, result.fields];
+            const idKey =
+              Object.keys(firstRow).find((k) => k.endsWith("_id")) ||
+              Object.keys(firstRow)[0];
+            return [
+              { insertId: firstRow[idKey], affectedRows: result.rowCount },
+              result.fields,
+            ];
           }
-          
+
           // For UPDATE/DELETE, return affectedRows
-          if (pgSql.trim().toUpperCase().startsWith("UPDATE") || 
-              pgSql.trim().toUpperCase().startsWith("DELETE")) {
+          if (
+            pgSql.trim().toUpperCase().startsWith("UPDATE") ||
+            pgSql.trim().toUpperCase().startsWith("DELETE")
+          ) {
             return [{ affectedRows: result.rowCount }, result.fields];
           }
-          
+
           // Return in MySQL format [rows, fields]
           return [result.rows, result.fields];
         },
@@ -163,11 +170,11 @@ async function closeConnections() {
  */
 async function runMigrations() {
   if (!isProduction) return;
-  
+
   let connection;
   try {
     connection = await getConnection();
-    
+
     // Add account lockout columns if they don't exist
     // PostgreSQL uses IF NOT EXISTS syntax in ALTER TABLE via a workaround
     const migrations = [
@@ -182,23 +189,23 @@ async function runMigrations() {
          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='locked_until') THEN
            ALTER TABLE users ADD COLUMN locked_until TIMESTAMP;
          END IF;
-       END $$;`
+       END $$;`,
     ];
-    
+
     for (const sql of migrations) {
       try {
         await connection.query(sql);
       } catch (err) {
         // Ignore if column already exists
-        if (!err.message.includes('already exists')) {
-          console.error('Migration error:', err.message);
+        if (!err.message.includes("already exists")) {
+          console.error("Migration error:", err.message);
         }
       }
     }
-    
-    console.log('✓ Database migrations completed');
+
+    console.log("✓ Database migrations completed");
   } catch (error) {
-    console.error('Migration failed:', error.message);
+    console.error("Migration failed:", error.message);
   } finally {
     if (connection) connection.release();
   }
@@ -223,16 +230,18 @@ async function initializeAdmin() {
   const adminPassword = process.env.ADMIN_PASSWORD;
 
   if (!adminEmail || !adminPassword) {
-    console.log("⚠ ADMIN_EMAIL or ADMIN_PASSWORD not set - skipping admin creation");
+    console.log(
+      "⚠ ADMIN_EMAIL or ADMIN_PASSWORD not set - skipping admin creation"
+    );
     return;
   }
 
   let connection;
   try {
     connection = await getConnection();
-    
+
     console.log(`Checking for admin user: ${adminEmail}`);
-    
+
     // Check if admin already exists
     const [existingUsers] = await connection.query(
       "SELECT user_id FROM users WHERE email = ?",
@@ -240,8 +249,8 @@ async function initializeAdmin() {
     );
 
     // Handle both array and object responses from different database adapters
-    const userExists = Array.isArray(existingUsers) 
-      ? existingUsers.length > 0 
+    const userExists = Array.isArray(existingUsers)
+      ? existingUsers.length > 0
       : existingUsers && existingUsers.user_id;
 
     // Always hash the password (for both create and update)
@@ -254,7 +263,9 @@ async function initializeAdmin() {
         "UPDATE users SET is_admin = true, password_hash = ? WHERE email = ?",
         [hashedPassword, adminEmail]
       );
-      console.log(`✓ Admin password synced and status confirmed for: ${adminEmail}`);
+      console.log(
+        `✓ Admin password synced and status confirmed for: ${adminEmail}`
+      );
     } else {
       // Create new admin user
       await connection.query(
@@ -281,4 +292,3 @@ module.exports = {
   isUsingSQLite: () => !isProduction,
   isUsingPostgreSQL: () => isProduction,
 };
-
