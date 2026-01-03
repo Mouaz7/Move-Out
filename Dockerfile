@@ -1,5 +1,5 @@
 # Multi-stage build for optimized production image
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Install Python and build tools for native modules (better-sqlite3)
 RUN apk add --no-cache python3 make g++ 
@@ -14,7 +14,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Production stage
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
