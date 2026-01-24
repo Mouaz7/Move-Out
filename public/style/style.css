@@ -2920,20 +2920,35 @@ h1.qr-header {
 /* ===== Footer Premium Design ===== */
 .footer-premium {
   padding-top: 0;
-  background-image: 
-    radial-gradient(circle at top right, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at bottom left, rgba(0, 217, 255, 0.1) 0%, transparent 40%);
+  background: transparent; /* Remove gradients entirely for perfect match */
   position: relative;
-  margin-top: -1px; /* Overlap to hide the line */
+  margin-top: -1px;
   z-index: 10;
 }
 
+[data-theme="light"] .footer-premium {
+  background-image: none; /* Remove dark gradients in light mode */
+}
+
 .footer-glass {
-  background: rgba(10, 10, 25, 0.85); /* Much darker */
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--glass-border);
-  padding: 40px 0; /* Reduced padding for minimal look */
+  background: var(--bg-dark); /* Strict theme background */
+  border-top: 1px solid var(--glass-border); /* Thin border only if needed for separation */
+  backdrop-filter: none; /* Remove blur to avoid color shift */
+  -webkit-backdrop-filter: none;
+  padding: 4px 0; /* Extremely small padding */
+  box-shadow: none;
+}
+
+[data-theme="light"] .footer-glass {
+  background: var(--bg-dark); /* Uses light mode bg-dark (which is distinct) */
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Ensure text contrasts correctly in different modes */
+[data-theme="light"] .footer-glass .copyright-text,
+[data-theme="light"] .footer-glass a,
+[data-theme="light"] .footer-glass .logo-icon {
+  color: var(--text-secondary);
 }
 
 /* Minimal footer styles */
@@ -2984,8 +2999,10 @@ h1.qr-header {
 
 @media screen and (max-width: 768px) {
   .footer-content {
-    flex-direction: column;
-    gap: 40px;
+    flex-direction: row; /* Keep row even on mobile if possible, or wrap */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
   }
   
   .footer-col {

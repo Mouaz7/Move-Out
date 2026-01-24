@@ -1,20 +1,18 @@
 <footer class="footer-premium">
   <div class="footer-glass">
-    <div class="footer-content container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px;">
+    <div class="footer-content container" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0 15px; gap: 10px; max-width: 900px; min-height: 30px;">
       
-      <div class="logo" style="justify-content: center; margin-bottom: 0;">
-        <i class="fas fa-box-open logo-icon"></i>
-        <a href="/move/about">MoveOut</a>
+      <div class="logo" style="display: flex; align-items: center; gap: 6px; margin-bottom: 0;">
+        <i class="fas fa-box-open logo-icon" style="font-size: 1rem;"></i>
+        <a href="/move/about" style="font-size: 0.9rem;">MoveOut</a>
       </div>
 
-      <p class="copyright-text" style="margin-top: 0;">
+      <p class="copyright-text" style="margin: 0; font-size: 0.7rem;">
         &copy; <span id="year"></span> MoveOut. All rights reserved.
       </p>
 
     </div>
   </div>
   
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+  <script src="/js/script.js"></script>
 </footer>
