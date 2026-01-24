@@ -173,7 +173,7 @@ router.post("/toggle-status", isAdmin, async (req, res) => {
       showDashboard: false,
       showSessions: false,
       activeSessions: [],
-      errorMessage: "Error toggling user status.",
+      errorMessage: error.message || "Error toggling user status.",
       successMessage: null,
       user: req.session.user,
       title: "Admin Panel - Manage Users",

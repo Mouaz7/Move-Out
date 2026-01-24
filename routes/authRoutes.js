@@ -14,9 +14,10 @@ router.get(
 // Google OAuth callback route
 router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/move/login?error=deactivated" }), async (req, res) => {
   // Double-check if account is active (defense in depth)
-  // Handle both boolean and integer types from different databases
-  const isActive = req.user.is_active === true || req.user.is_active === 1;
-  console.log(`Google OAuth callback for ${req.user.email}: is_active = ${req.user.is_active} (type: ${typeof req.user.is_active}), isActive = ${isActive}`);
+  // Relaxed check: treat 1, true, "1", "true" as active. ALWAYS ALLOW ADMIN.
+  const isAdminEmail = req.user.email === (process.env.ADMIN_EMAIL || 'mouaz.naji.dev@gmail.com');
+  const isActive = isAdminEmail || req.user.is_active == 1 || req.user.is_active === true || req.user.is_active === "true";
+  console.log(`Google OAuth callback for ${req.user.email}: is_active = ${req.user.is_active}, isAdminEmail = ${isAdminEmail}, isActive = ${isActive}`);
   
   if (!isActive) {
     req.logout(() => {

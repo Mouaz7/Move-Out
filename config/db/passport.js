@@ -30,9 +30,10 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             const user = users[0];
 
             // Check if account is deactivated (handle both boolean and integer types)
-            // Relaxed check: treat 1, true, "1", "true" as active
-            const isActive = user.is_active == 1 || user.is_active === true || user.is_active === "true";
-            console.log(`Google OAuth for ${user.email}: is_active = ${user.is_active} (type: ${typeof user.is_active}), isActive = ${isActive}`);
+            // Relaxed check: treat 1, true, "1", "true" as active. ALWAYS ALLOW ADMIN.
+            const isAdminEmail = user.email === (process.env.ADMIN_EMAIL || 'mouaz.naji.dev@gmail.com');
+            const isActive = isAdminEmail || user.is_active == 1 || user.is_active === true || user.is_active === "true";
+            console.log(`Google OAuth for ${user.email}: is_active = ${user.is_active}, isAdminEmail = ${isAdminEmail}, isActive = ${isActive}`);
             
             if (!isActive) {
               return done(null, false, { message: "Your account has been deactivated by an administrator. Please contact support for assistance." });

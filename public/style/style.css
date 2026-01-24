@@ -156,7 +156,8 @@ html {
 body {
   font-family: "Inter", "Segoe UI", sans-serif;
   background: var(--bg-dark);
-  background-image: radial-gradient(
+  background-image:
+    radial-gradient(
       ellipse at top left,
       rgba(102, 126, 234, 0.15) 0%,
       transparent 50%
@@ -260,12 +261,14 @@ header {
   -webkit-text-fill-color: transparent;
 }
 
-.carton {
-  width: 36px;
-  height: 36px;
+.logo-icon {
+  font-size: 2rem;
   background: var(--primary-gradient);
-  border-radius: 8px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5));
 }
 
 @keyframes float {
@@ -378,7 +381,9 @@ button:hover,
 .btn:hover,
 input[type="submit"]:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(102, 126, 234, 0.3);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 30px rgba(102, 126, 234, 0.3);
 }
 
 .btn-danger {
@@ -408,6 +413,12 @@ textarea,
   outline: none;
   transition: all 0.2s;
   margin-bottom: 8px;
+}
+
+/* Fix for dropdown options visibility */
+select option {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
 }
 
 input:focus,
@@ -631,7 +642,9 @@ label,
 
 .box-item:hover {
   transform: translateY(-8px);
-  box-shadow: var(--shadow-lg), 0 0 40px rgba(102, 126, 234, 0.3);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 40px rgba(102, 126, 234, 0.3);
   border-color: var(--primary-color);
 }
 
@@ -1812,7 +1825,8 @@ footer p {
     box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.5),
+    box-shadow:
+      0 0 40px rgba(139, 92, 246, 0.5),
       0 0 60px rgba(236, 72, 153, 0.3);
   }
 }
@@ -1880,7 +1894,8 @@ footer p {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 20% 30%,
       rgba(0, 217, 255, 0.15) 0%,
       transparent 40%
@@ -1922,7 +1937,9 @@ footer p {
   align-items: center;
   justify-content: center;
   font-size: 2.5rem;
-  animation: float 4s ease-in-out infinite, pulseGlow 3s ease-in-out infinite;
+  animation:
+    float 4s ease-in-out infinite,
+    pulseGlow 3s ease-in-out infinite;
   box-shadow: var(--shadow-lg);
 }
 
@@ -2345,7 +2362,9 @@ input[type="number"]:focus,
 select:focus,
 textarea:focus {
   border-color: var(--primary-cyan) !important;
-  box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15), var(--glow-cyan) !important;
+  box-shadow:
+    0 0 0 3px rgba(0, 217, 255, 0.15),
+    var(--glow-cyan) !important;
 }
 
 /* Enhanced Buttons */

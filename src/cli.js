@@ -161,9 +161,24 @@ async function toggleUserStatus(userId) {
   let connection;
   try {
     connection = await getConnection();
-    const [users] = await connection.query("SELECT is_active FROM users WHERE user_id = ?", [userId]);
+    const [users] = await connection.query("SELECT user_id, email, is_active FROM users WHERE user_id = ?", [userId]);
+    
+    if (!users || users.length === 0) {
+      throw new Error("User not found.");
+    }
+    
     const user = users[0];
-    const newStatus = !user.is_active;
+    const adminEmail = process.env.ADMIN_EMAIL || 'mouaz.naji.dev@gmail.com';
+    
+    // SAFETY: Prevent deactivating the main admin
+    if (user.email === adminEmail && (user.is_active == 1 || user.is_active === true)) {
+       throw new Error("Cannot deactivate the main administrator account.");
+    }
+
+    // Explicitly handle status toggle for both SQLite (1/0) and Postgres (true/false)
+    const isCurrentlyActive = user.is_active == 1 || user.is_active === true || user.is_active === "true";
+    const newStatus = isCurrentlyActive ? 0 : 1;
+    
     const now = new Date();
     const currentTime = moment(now).format("YYYY-MM-DD HH:mm:ss");
 
@@ -181,6 +196,14 @@ async function deleteUser(userId) {
   let connection;
   try {
     connection = await getConnection();
+
+    // Check if user is admin before deleting
+    const [user] = await connection.query("SELECT email FROM users WHERE user_id = ?", [userId]);
+    const adminEmail = process.env.ADMIN_EMAIL || 'mouaz.naji.dev@gmail.com';
+    
+    if (user && user.length > 0 && user[0].email === adminEmail) {
+      throw new Error("Cannot delete the administrator account.");
+    }
 
     const [boxes] = await connection.query("SELECT label_image, content_data FROM boxes WHERE user_id = ?", [userId]);
 
@@ -275,7 +298,8 @@ async function deactivateInactiveUsers() {
     connection = await getConnection();
     const oneMonthAgo = moment().subtract(1, "months").format("YYYY-MM-DD HH:mm:ss");
 
-    const [usersToDeactivate] = await connection.query("SELECT * FROM users WHERE last_activity < ? AND is_active = TRUE", [oneMonthAgo]);
+    const adminEmail = process.env.ADMIN_EMAIL || 'mouaz.naji.dev@gmail.com';
+    const [usersToDeactivate] = await connection.query("SELECT * FROM users WHERE last_activity < ? AND is_active = TRUE AND email != ?", [oneMonthAgo, adminEmail]);
 
     // Handle empty or undefined results
     if (!usersToDeactivate || !Array.isArray(usersToDeactivate) || usersToDeactivate.length === 0) {
