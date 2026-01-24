@@ -763,12 +763,13 @@ label,
 /* ===== About Page ===== */
 .about-container {
   max-width: 900px;
-  margin: 100px auto 40px;
-  padding: 40px;
+  margin: 100px auto 0;
+  padding: 40px 40px 0;
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  border-bottom: none;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   box-shadow: var(--shadow-lg);
 }
 
@@ -1957,6 +1958,10 @@ input[type="checkbox"] {
   animation-fill-mode: both;
 }
 
+.section-enhanced:last-child {
+  margin-bottom: 0;
+}
+
 .section-enhanced:nth-child(2) {
   animation-delay: 0.1s;
 }
@@ -2914,12 +2919,13 @@ h1.qr-header {
 
 /* ===== Footer Premium Design ===== */
 .footer-premium {
-  padding-top: 80px;
+  padding-top: 0;
   background-image: 
     radial-gradient(circle at top right, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
     radial-gradient(circle at bottom left, rgba(0, 217, 255, 0.1) 0%, transparent 40%);
-    position: relative;
-    margin-top: auto; /* Push footer to bottom */
+  position: relative;
+  margin-top: -1px; /* Overlap to hide the line */
+  z-index: 10;
 }
 
 .footer-glass {
