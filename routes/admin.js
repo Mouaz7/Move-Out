@@ -5,7 +5,8 @@
  */
 const express = require("express");
 const router = express.Router();
-const cli = require("../src/cli"); // Import CLI module
+const userService = require("../src/services/userService");
+const emailService = require("../src/services/emailService");
 const isAdmin = require("../middleware/isAdmin"); // Check admin status
 const moment = require("moment");
 
@@ -41,7 +42,7 @@ router.updateSessionActivity = (sessionId) => {
 router.get("/users", isAdmin, async (req, res) => {
   const user = req.session.user;
   try {
-    const users = await cli.getAllUsers(); // Get users with last_activity and created_at
+    const users = await userService.getAllUsers(); // Get users with last_activity and created_at
     res.render("adminUsers", {
       users,
       showDashboard: false,
@@ -141,11 +142,11 @@ router.get("/user", isAdmin, (req, res) => {
 router.post("/delete", isAdmin, async (req, res) => {
   const userId = req.body.user_id;
   try {
-    await cli.deleteUser(userId);
+    await userService.deleteUser(userId);
     res.redirect("/move/admin/users?successMessage=User deleted successfully");
   } catch (error) {
     console.error("Error deleting user:", error);
-    const users = await cli.getAllUsers();
+    const users = await userService.getAllUsers();
     res.render("adminUsers", {
       users,
       showDashboard: false,
@@ -163,11 +164,11 @@ router.post("/delete", isAdmin, async (req, res) => {
 router.post("/toggle-status", isAdmin, async (req, res) => {
   const userId = req.body.user_id;
   try {
-    await cli.toggleUserStatus(userId); // Toggle user status
+    await userService.toggleUserStatus(userId); // Toggle user status
     res.redirect("/move/admin/users?successMessage=User status updated");
   } catch (error) {
     console.error("Error toggling user status:", error);
-    const users = await cli.getAllUsers();
+    const users = await userService.getAllUsers();
     res.render("adminUsers", {
       users,
       showDashboard: false,
@@ -186,7 +187,7 @@ router.post("/send-marketing", isAdmin, async (req, res) => {
   const { subject, message } = req.body;
   const user = req.session.user;
   try {
-    await cli.sendMarketingEmails(subject, message); // Send emails
+    await userService.sendMarketingEmails(subject, message); // Send emails
     res.redirect("/move/admin/users?successMessage=Marketing emails sent successfully");
   } catch (error) {
     console.error("Error sending marketing emails:", error);
@@ -206,7 +207,7 @@ router.post("/send-marketing", isAdmin, async (req, res) => {
 // Automatic deactivation of users after one month of inactivity
 router.get("/deactivate-inactive", isAdmin, async (req, res) => {
   try {
-    await cli.deactivateInactiveUsers(); // Handle deactivation
+    await userService.deactivateInactiveUsers(); // Handle deactivation
     res.redirect("/move/admin/users?successMessage=Inactive users deactivated successfully");
   } catch (error) {
     console.error("Error deactivating inactive users:", error);

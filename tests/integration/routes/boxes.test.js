@@ -11,18 +11,19 @@ jest.mock('../../config/db/database', () => ({
   isUsingMySQL: jest.fn(() => true),
 }));
 
-// Mock CLI functions
-jest.mock('../../src/cli', () => ({
+// Mock boxService functions
+jest.mock('../../src/services/boxService', () => ({
   getAllBoxes: jest.fn(),
   getBoxById: jest.fn(),
   getBoxContents: jest.fn(),
   createBox: jest.fn(),
   deleteBox: jest.fn(),
   createOrUpdateLabel: jest.fn(),
+  getBoxByToken: jest.fn(), // Added this
 }));
 
 const db = require('../../config/db/database');
-const cli = require('../../src/cli');
+const boxService = require('../../src/services/boxService');
 
 describe('Box Routes', () => {
   let mockConnection;
@@ -42,78 +43,78 @@ describe('Box Routes', () => {
   describe('GET /boxes', () => {
     test('should return all boxes for authenticated user', async () => {
       // Mock boxes
-      cli.getAllBoxes.mockResolvedValue([
+      boxService.getAllBoxes.mockResolvedValue([
         { box_id: 1, box_name: 'Box 1' },
         { box_id: 2, box_name: 'Box 2' },
       ]);
 
-      const boxes = await cli.getAllBoxes(1);
+      const boxes = await boxService.getAllBoxes(1);
       expect(boxes).toHaveLength(2);
       expect(boxes[0].box_name).toBe('Box 1');
     });
 
     test('should return empty array when user has no boxes', async () => {
-      cli.getAllBoxes.mockResolvedValue([]);
+      boxService.getAllBoxes.mockResolvedValue([]);
 
-      const boxes = await cli.getAllBoxes(1);
+      const boxes = await boxService.getAllBoxes(1);
       expect(boxes).toHaveLength(0);
     });
   });
 
   describe('GET /boxes/view/:boxId', () => {
     test('should return box details for valid box ID', async () => {
-      cli.getBoxById.mockResolvedValue({
+      boxService.getBoxById.mockResolvedValue({
         box_id: 1,
         box_name: 'Test Box',
         user_id: 1,
         is_private: false,
       });
 
-      const box = await cli.getBoxById(1, 1);
+      const box = await boxService.getBoxById(1, 1);
       expect(box).toBeDefined();
       expect(box.box_name).toBe('Test Box');
     });
 
     test('should return null for non-existent box', async () => {
-      cli.getBoxById.mockResolvedValue(null);
+      boxService.getBoxById.mockResolvedValue(null);
 
-      const box = await cli.getBoxById(999, 1);
+      const box = await boxService.getBoxById(999, 1);
       expect(box).toBeNull();
     });
 
     test('should return null for box not owned by user', async () => {
-      cli.getBoxById.mockResolvedValue(null);
+      boxService.getBoxById.mockResolvedValue(null);
 
-      const box = await cli.getBoxById(1, 999);
+      const box = await boxService.getBoxById(1, 999);
       expect(box).toBeNull();
     });
   });
 
   describe('Box Creation', () => {
     test('should create box with valid data', async () => {
-      cli.createBox.mockResolvedValue(1);
+      boxService.createBox.mockResolvedValue(1);
 
-      const boxId = await cli.createBox(1, 'New Box', 'Label', 'default.png', 'text', 'Content', null, 0, null);
+      const boxId = await boxService.createBox(1, 'New Box', 'Label', 'default.png', 'text', 'Content', null, 0, null);
       expect(boxId).toBe(1);
-      expect(cli.createBox).toHaveBeenCalledWith(1, 'New Box', 'Label', 'default.png', 'text', 'Content', null, 0, null);
+      expect(boxService.createBox).toHaveBeenCalledWith(1, 'New Box', 'Label', 'default.png', 'text', 'Content', null, 0, null);
     });
 
     test('should create private box with PIN', async () => {
-      cli.createBox.mockResolvedValue(2);
+      boxService.createBox.mockResolvedValue(2);
 
-      const boxId = await cli.createBox(1, 'Private Box', 'Label', 'default.png', 'text', 'Secret', null, 1, '1234');
+      const boxId = await boxService.createBox(1, 'Private Box', 'Label', 'default.png', 'text', 'Secret', null, 1, '1234');
       expect(boxId).toBe(2);
-      expect(cli.createBox).toHaveBeenCalledWith(1, 'Private Box', 'Label', 'default.png', 'text', 'Secret', null, 1, '1234');
+      expect(boxService.createBox).toHaveBeenCalledWith(1, 'Private Box', 'Label', 'default.png', 'text', 'Secret', null, 1, '1234');
     });
   });
 
   describe('Box Deletion', () => {
     test('should delete box successfully', async () => {
-      cli.deleteBox.mockResolvedValue(true);
+      boxService.deleteBox.mockResolvedValue(true);
 
-      const result = await cli.deleteBox(1, 1);
+      const result = await boxService.deleteBox(1, 1);
       expect(result).toBe(true);
-      expect(cli.deleteBox).toHaveBeenCalledWith(1, 1);
+      expect(boxService.deleteBox).toHaveBeenCalledWith(1, 1);
     });
   });
 
@@ -155,18 +156,18 @@ describe('Box Routes', () => {
 
   describe('Label Management', () => {
     test('should create or update label', async () => {
-      cli.createOrUpdateLabel.mockResolvedValue(1);
+      boxService.createOrUpdateLabel.mockResolvedValue(1);
 
-      const labelId = await cli.createOrUpdateLabel(null, 'New Label', false, 1);
+      const labelId = await boxService.createOrUpdateLabel(null, 'New Label', false, 1);
       expect(labelId).toBe(1);
     });
 
     test('should create private label with PIN', async () => {
-      cli.createOrUpdateLabel.mockResolvedValue(2);
+      boxService.createOrUpdateLabel.mockResolvedValue(2);
 
-      const labelId = await cli.createOrUpdateLabel(null, 'Private Label', true, 1);
+      const labelId = await boxService.createOrUpdateLabel(null, 'Private Label', true, 1);
       expect(labelId).toBe(2);
-      expect(cli.createOrUpdateLabel).toHaveBeenCalledWith(null, 'Private Label', true, 1);
+      expect(boxService.createOrUpdateLabel).toHaveBeenCalledWith(null, 'Private Label', true, 1);
     });
   });
 });

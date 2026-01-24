@@ -1,5 +1,20 @@
-<footer>
-    <p><span data-i18n="copyright">&copy; 2024 MoveOut. All rights reserved.</span></p>
-  </footer>
+<footer class="footer-premium">
+  <div class="footer-glass">
+    <div class="footer-content container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px;">
+      
+      <div class="logo" style="justify-content: center; margin-bottom: 0;">
+        <i class="fas fa-box-open logo-icon"></i>
+        <a href="/move/about">MoveOut</a>
+      </div>
+
+      <p class="copyright-text" style="margin-top: 0;">
+        &copy; <span id="year"></span> MoveOut. All rights reserved.
+      </p>
+
+    </div>
+  </div>
   
-  
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</footer>

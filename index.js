@@ -14,10 +14,10 @@ const profileRoutes = require("./routes/profile");
 const boxRoutes = require("./routes/boxes");
 const publicRoutes = require("./routes/public");
 const adminRoutes = require("./routes/admin");
-const googleAuthRoutes = require("./routes/authRoutes");
+const googleAuthRoutes = require("./routes/googleAuth");
 
 // Other imports
-const cli = require("./src/cli");
+const userService = require("./src/services/userService");
 require("dotenv").config();
 const cron = require("node-cron");
 const passport = require("passport");
@@ -181,7 +181,7 @@ app.use((err, req, res, next) => {
 cron.schedule("0 0 * * *", async () => {
   // Runs every day at 00:00
   try {
-    await cli.deactivateInactiveUsers();
+    await userService.deactivateInactiveUsers();
   } catch (error) {
     console.error("Error during automatic deactivation:", error.message);
   }

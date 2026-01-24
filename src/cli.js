@@ -44,74 +44,7 @@ async function sendVerificationEmail(toEmail, token) {
   }
 }
 
-// Create a new user
-async function createUser(name, email, password) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const token = crypto.randomBytes(32).toString("hex");
-
-    await connection.query("INSERT INTO users (profile_name, email, password_hash, verification_token) VALUES (?, ?, ?, ?)", [name, email, hashedPassword, token]);
-
-    await sendVerificationEmail(email, token);
-  } catch (error) {
-    console.error("Error creating user:", error);
-    throw new Error("Error creating user.");
-  } finally {
-    if (connection) connection.release();
-  }
-}
-
-// Verify user email
-async function verifyUser(token) {
-  let connection;
-  try {
-    connection = await getConnection();
-
-    const [results] = await connection.query("SELECT * FROM users WHERE verification_token = ?", [token]);
-
-    if (results.length > 0) {
-      await connection.query("UPDATE users SET is_verified = 1, verification_token = NULL WHERE verification_token = ?", [token]);
-    } else {
-      throw new Error("Verification token is invalid.");
-    }
-  } catch (error) {
-    console.error("Error verifying user:", error);
-    throw new Error("Error verifying user.");
-  } finally {
-    if (connection) connection.release();
-  }
-}
-
-// Login user
-async function loginUser(email, password) {
-  let connection;
-  try {
-    connection = await getConnection();
-
-    const [results] = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
-
-    if (results.length > 0) {
-      const user = results[0];
-      const isValid = await bcrypt.compare(password, user.password_hash);
-      if (isValid) {
-        await connection.query("UPDATE users SET last_activity = CURRENT_TIMESTAMP WHERE user_id = ?", [user.user_id]);
-        return { success: true, user: { id: user.user_id, profile_name: user.profile_name } };
-      } else {
-        return { success: false, message: "Invalid password." };
-      }
-    } else {
-      return { success: false, message: "User not found." };
-    }
-  } catch (error) {
-    console.error("Error logging in:", error);
-    throw new Error("Error during login.");
-  } finally {
-    if (connection) connection.release();
-  }
-}
+// Login and User creation functions removed (unused and duplicated in auth routes)
 
 // Get all users
 async function getAllUsers() {
@@ -529,13 +462,15 @@ function generateSixDigitPin() {
 // Export all functions
 module.exports = {
   // User functions
-  createUser,
-  verifyUser,
-  loginUser,
+  // User functions
   getAllUsers,
   activateUser,
   deactivateUser,
   toggleUserStatus,
+  deleteUser,
+  sendMarketingEmails,
+  sendVerificationEmail,
+  deactivateInactiveUsers,
   deleteUser,
   sendMarketingEmails,
   sendVerificationEmail,
