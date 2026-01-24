@@ -29,8 +29,9 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           if (users.length > 0) {
             const user = users[0];
 
-            // Check if account is deactivated by admin (handle both boolean and integer types)
-            const isActive = user.is_active === true || user.is_active === 1;
+            // Check if account is deactivated (handle both boolean and integer types)
+            // Relaxed check: treat 1, true, "1", "true" as active
+            const isActive = user.is_active == 1 || user.is_active === true || user.is_active === "true";
             console.log(`Google OAuth for ${user.email}: is_active = ${user.is_active} (type: ${typeof user.is_active}), isActive = ${isActive}`);
             
             if (!isActive) {

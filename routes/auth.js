@@ -244,8 +244,8 @@ router.post("/login", loginLimiter, async (req, res) => {
     }
 
     // Check if account is deactivated (handle both boolean and integer types)
-    // PostgreSQL returns boolean, SQLite returns integer
-    const isActive = user.is_active === true || user.is_active === 1;
+    // Relaxed check: treat 1, true, "1", "true" as active
+    const isActive = user.is_active == 1 || user.is_active === true || user.is_active === "true";
     console.log(`Login attempt for ${email}: is_active = ${user.is_active} (type: ${typeof user.is_active}), isActive = ${isActive}`);
     
     if (!isActive) {
