@@ -49,11 +49,19 @@ const ThemeManager = {
   updateHeader(theme) {
     const header = document.querySelector('header');
     if (header) {
-      if (theme === 'light') {
-        header.style.background = 'rgba(255, 255, 255, 0.9)';
-      } else {
-        header.style.background = 'rgba(15, 15, 35, 0.9)';
-      }
+      // Remove inline styles to let CSS variables control the colors
+      header.style.background = '';
+    }
+    
+    // Update footer as well
+    this.updateFooter(theme);
+  },
+
+  updateFooter(theme) {
+    const footer = document.querySelector('.footer-new');
+    if (footer) {
+      // CSS variables will handle the colors, just ensure it's visible
+      footer.style.transition = 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease';
     }
   },
 

@@ -230,11 +230,22 @@ header {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(15, 15, 35, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--bg-dark);
+  background-image:
+    radial-gradient(
+      ellipse at top left,
+      rgba(102, 126, 234, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at bottom right,
+      rgba(118, 75, 162, 0.15) 0%,
+      transparent 50%
+    );
   border-bottom: 1px solid var(--glass-border);
-  padding: 15px 20px;
+  padding: 14px 20px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .navbar {
@@ -298,13 +309,13 @@ header .navbar .nav-menu li a,
   padding: 8px 16px;
   font-weight: 500;
   font-size: 0.9rem;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary) !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  background: transparent !important;
   background-image: none !important;
   background-clip: border-box !important;
   -webkit-background-clip: border-box !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid transparent !important;
   border-radius: var(--radius-md);
   transition: all 0.3s ease;
   opacity: 1 !important;
@@ -317,10 +328,10 @@ header .navbar .nav-menu li a,
 [data-theme="light"] .nav-menu > li > a,
 [data-theme="light"] .nav-menu li a,
 [data-theme="light"] .nav-link {
-  color: #1a1a2e !important;
-  -webkit-text-fill-color: #1a1a2e !important;
-  background: var(--glass-bg) !important;
-  border: 1px solid var(--glass-border) !important;
+  color: var(--text-primary) !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
 }
 
 /* Hover states - purple gradient like toggle button */
@@ -329,12 +340,12 @@ header nav.navbar ul.nav-menu li a:hover,
 .nav-menu > li > a:hover,
 .nav-menu li a:hover,
 .nav-link:hover {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  border-color: transparent !important;
+  color: var(--text-primary) !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .hamburger {
@@ -2917,38 +2928,89 @@ h1.qr-header {
   }
 }
 
-/* ===== Footer Premium Design ===== */
-.footer-premium {
-  padding-top: 0;
-  background: transparent; /* Remove gradients entirely for perfect match */
-  position: relative;
-  margin-top: -1px;
-  z-index: 10;
+/* ===== Footer Design ===== */
+.footer-new {
+  background: var(--bg-dark);
+  background-image:
+    radial-gradient(
+      ellipse at top left,
+      rgba(102, 126, 234, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at bottom right,
+      rgba(118, 75, 162, 0.15) 0%,
+      transparent 50%
+    );
+  border-top: 1px solid var(--glass-border);
+  padding: 14px 0;
+  width: 100%;
+  margin-top: auto;
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08);
 }
 
-[data-theme="light"] .footer-premium {
-  background-image: none; /* Remove dark gradients in light mode */
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-.footer-glass {
-  background: var(--bg-dark); /* Strict theme background */
-  border-top: 1px solid var(--glass-border); /* Thin border only if needed for separation */
-  backdrop-filter: none; /* Remove blur to avoid color shift */
-  -webkit-backdrop-filter: none;
-  padding: 4px 0; /* Extremely small padding */
-  box-shadow: none;
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+  flex-wrap: wrap;
 }
 
-[data-theme="light"] .footer-glass {
-  background: var(--bg-dark); /* Uses light mode bg-dark (which is distinct) */
-  border-top: 1px solid rgba(0,0,0,0.05);
+.footer-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
 }
 
-/* Ensure text contrasts correctly in different modes */
-[data-theme="light"] .footer-glass .copyright-text,
-[data-theme="light"] .footer-glass a,
-[data-theme="light"] .footer-glass .logo-icon {
+.footer-logo-icon {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.footer-logo-text {
+  color: var(--text-primary);
+}
+
+.footer-text {
+  margin: 0;
+  font-size: 0.875rem;
   color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Responsive footer */
+@media (max-width: 768px) {
+  .footer-new {
+    padding: 12px 0;
+  }
+  
+  .footer-content {
+    gap: 12px;
+  }
+  
+  .footer-logo-section {
+    font-size: 0.9rem;
+    gap: 6px;
+  }
+  
+  .footer-logo-icon {
+    font-size: 1rem;
+  }
+  
+  .footer-text {
+    font-size: 0.8rem;
+  }
 }
 
 /* Minimal footer styles */
