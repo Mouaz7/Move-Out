@@ -2628,22 +2628,11 @@ th {
 
 /* ===== Scrollbar Enhancement ===== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-dark);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--gradient-aurora);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-purple);
-}
 
 /* ===== Page Title Enhancement ===== */
 .container h1,
