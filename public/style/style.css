@@ -8,44 +8,44 @@
 :root,
 [data-theme="dark"] {
   /* Base Colors */
-  --primary-color: #667eea;
-  --primary-dark: #5a67d8;
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --accent-color: #f5576c;
+  --primary-color: #D4AF37;
+  --primary-dark: #C5A059;
+  --primary-gradient: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%);
+  --accent-color: #0E234B;
 
-  /* Cosmic Aurora Palette */
-  --primary-cyan: #00d9ff;
-  --primary-purple: #8b5cf6;
-  --primary-magenta: #ec4899;
-  --primary-blue: #667eea;
+  /* LingoScribe Palette */
+  --primary-cyan: #D4AF37;
+  --primary-purple: #E5C158;
+  --primary-magenta: #C5A059;
+  --primary-blue: #0E234B;
 
-  /* Aurora Gradients */
+  /* Gradients */
   --gradient-aurora: linear-gradient(
     135deg,
-    #00d9ff 0%,
-    #8b5cf6 50%,
-    #ec4899 100%
+    #D4AF37 0%,
+    #E5C158 50%,
+    #C5A059 100%
   );
   --gradient-cosmic: linear-gradient(
     135deg,
-    #667eea 0%,
-    #764ba2 50%,
-    #f093fb 100%
+    #0E234B 0%,
+    #173666 50%,
+    #1A365D 100%
   );
   --gradient-hero: linear-gradient(
     135deg,
-    rgba(0, 217, 255, 0.1) 0%,
-    rgba(139, 92, 246, 0.1) 50%,
-    rgba(236, 72, 153, 0.1) 100%
+    rgba(14, 35, 75, 0.1) 0%,
+    rgba(212, 175, 55, 0.1) 50%,
+    rgba(14, 35, 75, 0.1) 100%
   );
 
   /* Glow Effects */
-  --glow-cyan: 0 0 30px rgba(0, 217, 255, 0.4);
-  --glow-purple: 0 0 30px rgba(139, 92, 246, 0.4);
-  --glow-magenta: 0 0 30px rgba(236, 72, 153, 0.4);
+  --glow-cyan: 0 0 30px rgba(212, 175, 55, 0.4);
+  --glow-purple: 0 0 30px rgba(229, 193, 88, 0.4);
+  --glow-magenta: 0 0 30px rgba(197, 160, 89, 0.4);
 
   /* Background Colors */
-  --bg-dark: #0f0f23;
+  --bg-dark: #0A1526;
   --bg-medium: #1a1a2e;
   --bg-card: rgba(255, 255, 255, 0.03);
 
@@ -87,31 +87,36 @@
   /* Glass Effects */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-border-hover: rgba(139, 92, 246, 0.4);
+  --glass-border-hover: rgba(212, 175, 55, 0.4);
 
   /* Text Colors */
-  --text-primary: #1a1a2e;
-  --text-secondary: rgba(26, 26, 46, 0.7);
-  --text-muted: rgba(26, 26, 46, 0.5);
+  --text-primary: #0E234B;
+  --text-secondary: rgba(14, 35, 75, 0.7);
+  --text-muted: rgba(14, 35, 75, 0.5);
+
+  /* Elevate Your Thoughts color -> Navy linear gradient */
+  --primary-gradient: linear-gradient(135deg, #0A1C3A 0%, #1A365D 100%);
+  --gradient-aurora: linear-gradient(135deg, #D4AF37 0%, #E5C158 50%, #C5A059 100%);
+  --gradient-cosmic: linear-gradient(135deg, #0A1C3A 0%, #1A365D 50%, #2A4365 100%);
 
   /* Gradients - Lighter opacity */
   --gradient-hero: linear-gradient(
     135deg,
-    rgba(0, 217, 255, 0.08) 0%,
-    rgba(139, 92, 246, 0.08) 50%,
-    rgba(236, 72, 153, 0.08) 100%
+    rgba(14, 35, 75, 0.05) 0%,
+    rgba(212, 175, 55, 0.08) 50%,
+    rgba(14, 35, 75, 0.05) 100%
   );
 
   /* Lighter Glows */
-  --glow-cyan: 0 0 30px rgba(0, 217, 255, 0.2);
-  --glow-purple: 0 0 30px rgba(139, 92, 246, 0.2);
-  --glow-magenta: 0 0 30px rgba(236, 72, 153, 0.2);
+  --glow-cyan: 0 0 30px rgba(212, 175, 55, 0.15);
+  --glow-purple: 0 0 30px rgba(229, 193, 88, 0.15);
+  --glow-magenta: 0 0 30px rgba(197, 160, 89, 0.15);
 
   /* Shadows */
   --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 16px 64px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 60px rgba(139, 92, 246, 0.1);
+  --shadow-glow: 0 0 60px rgba(212, 175, 55, 0.15);
 }
 
 /* Toggle Buttons */
@@ -188,7 +193,7 @@ h6 {
 }
 
 h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
   background: var(--primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1929,9 +1934,9 @@ input[type="checkbox"] {
 
 .hero-title {
   font-family: "Poppins", sans-serif;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: 800;
-  background: var(--gradient-aurora);
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -2336,7 +2341,7 @@ input[type="checkbox"] {
 
 .login-title,
 .signup-form h1 {
-  background: var(--gradient-aurora) !important;
+  background: var(--primary-gradient) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
