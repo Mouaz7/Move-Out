@@ -367,9 +367,9 @@ input[type="submit"],
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 28px;
+  padding: clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px);
   font-family: "Inter", sans-serif;
-  font-size: 1rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
   font-weight: 600;
   color: var(--text-primary);
   background: var(--primary-gradient);
@@ -407,9 +407,9 @@ select,
 textarea,
 .form-control {
   width: 100%;
-  padding: 14px 18px;
+  padding: clamp(12px, 3vw, 16px) clamp(16px, 4vw, 20px);
   font-family: "Inter", sans-serif;
-  font-size: 1rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
   color: var(--text-primary);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
@@ -653,11 +653,14 @@ label,
 }
 
 .box-item .label-image img,
-.label-img {
+.label-img,
+.label-hero-image {
   width: 100%;
-  height: 180px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   object-fit: cover;
   transition: transform 0.4s;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .box-item:hover .label-image img {
@@ -1105,14 +1108,13 @@ label,
   animation: fadeIn 0.5s ease-out 0.3s both;
 }
 
+/* We handle .label-hero-image via aspect-ratio alongside .label-img above, 
+so only local overrides are here */
 .label-hero-image {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: var(--radius-md);
   border: 2px solid var(--glass-border);
   transition: all 0.4s ease;
   cursor: pointer;
+  border-radius: var(--radius-md);
 }
 
 .label-hero-image:hover {
@@ -1640,12 +1642,6 @@ input[type="checkbox"] {
     padding: 24px 20px;
   }
 
-  button,
-  .btn,
-  input[type="submit"] {
-    padding: 12px 20px;
-    font-size: 0.95rem;
-  }
 
   .qr-header {
     font-size: 1.5rem;
@@ -1683,9 +1679,6 @@ input[type="checkbox"] {
     margin-bottom: 20px;
   }
 
-  .label-hero-image {
-    height: 150px;
-  }
 
   .label-caption {
     font-size: 0.8rem;
@@ -2049,15 +2042,15 @@ input[type="checkbox"] {
 }
 
 .feature-icon {
-  width: 56px;
-  height: 56px;
+  width: clamp(48px, 10vw, 64px);
+  height: clamp(48px, 10vw, 64px);
   margin-bottom: 20px;
   background: var(--gradient-aurora);
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
   color: white;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
@@ -2165,15 +2158,15 @@ input[type="checkbox"] {
 }
 
 .developer-avatar {
-  width: 120px;
-  height: 120px;
-  min-width: 120px;
+  width: clamp(80px, 15vw, 140px);
+  height: clamp(80px, 15vw, 140px);
+  min-width: clamp(80px, 15vw, 140px);
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--gradient-aurora);
   border-radius: 50%;
-  font-size: 3rem;
+  font-size: clamp(2rem, 5vw, 3.5rem);
   color: white;
   box-shadow: var(--shadow-glow);
 }
@@ -2648,9 +2641,7 @@ h1.qr-header {
     margin-bottom: 24px;
   }
   .hero-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 1.8rem;
+    /* Fluid sizing in main rule handles this now */
   }
   .hero-title {
     font-size: 1.8rem;
@@ -2685,11 +2676,7 @@ h1.qr-header {
   .feature-card {
     padding: 20px;
   }
-  .feature-icon {
-    width: 44px;
-    height: 44px;
-    font-size: 1.1rem;
-  }
+
   .feature-title {
     font-size: 1rem;
   }
@@ -2713,12 +2700,7 @@ h1.qr-header {
     padding: 24px 20px;
     gap: 20px;
   }
-  .developer-avatar {
-    width: 80px;
-    height: 80px;
-    min-width: 80px;
-    font-size: 2rem;
-  }
+
   .developer-name {
     font-size: 1.4rem;
   }
@@ -2755,9 +2737,7 @@ h1.qr-header {
     border-radius: var(--radius-md);
   }
   .hero-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
+    /* Fluid sizing in main rule handles this now */
   }
   .hero-title {
     font-size: 1.5rem;
@@ -2781,12 +2761,7 @@ h1.qr-header {
     font-size: 1.1rem;
   }
 
-  /* Developer Avatar Smaller */
-  .developer-avatar {
-    width: 70px;
-    height: 70px;
-    font-size: 1.8rem;
-  }
+
   .developer-name {
     font-size: 1.2rem;
   }
