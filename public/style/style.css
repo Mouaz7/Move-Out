@@ -467,7 +467,7 @@ label,
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  padding: 40px;
+  padding: clamp(24px, 5vw, 36px);
   width: 100%;
   max-width: 420px;
   box-shadow: var(--shadow-lg);
@@ -475,12 +475,13 @@ label,
 
 .login-title {
   text-align: center;
-  margin-bottom: 30px;
-  font-size: 1.8rem;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  font-size: clamp(1.5rem, 3.5vw, 1.8rem);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .input-container {
@@ -502,7 +503,7 @@ label,
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  padding: 40px;
+  padding: clamp(24px, 5vw, 36px);
   width: 100%;
   max-width: 420px;
   box-shadow: var(--shadow-lg);
@@ -510,7 +511,13 @@ label,
 
 .signup-form h1 {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: clamp(1.5rem, 3.5vw, 1.8rem);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .signup-form hr {
@@ -522,7 +529,9 @@ label,
 .info-text {
   text-align: center;
   color: var(--text-muted);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 /* ===== Profile Page ===== */
@@ -1505,11 +1514,7 @@ input[type="checkbox"] {
     padding: 16px;
   }
 
-  .login-box,
-  .signup-form {
-    padding: 28px 24px;
-    margin: 0 16px;
-  }
+
 
   .box-list {
     grid-template-columns: 1fr;
@@ -1642,10 +1647,7 @@ input[type="checkbox"] {
 }
 
 @media screen and (max-width: 480px) {
-  .login-box,
-  .signup-form {
-    padding: 24px 20px;
-  }
+
 
 
   .qr-header {
@@ -2337,14 +2339,6 @@ input[type="checkbox"] {
   right: 0;
   height: 3px;
   background: var(--gradient-aurora);
-}
-
-.login-title,
-.signup-form h1 {
-  background: var(--primary-gradient) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
 }
 
 /* Enhanced Form Inputs */
