@@ -4,7 +4,7 @@
  */
 
 // Mock database
-jest.mock('../../config/db/database', () => ({
+jest.mock('../../../config/db/database', () => ({
   getConnection: jest.fn(),
   query: jest.fn(),
   healthCheck: jest.fn(),
@@ -12,7 +12,7 @@ jest.mock('../../config/db/database', () => ({
 }));
 
 // Mock boxService functions
-jest.mock('../../src/services/boxService', () => ({
+jest.mock('../../../src/services/boxService', () => ({
   getAllBoxes: jest.fn(),
   getBoxById: jest.fn(),
   getBoxContents: jest.fn(),
@@ -22,8 +22,8 @@ jest.mock('../../src/services/boxService', () => ({
   getBoxByToken: jest.fn(), // Added this
 }));
 
-const db = require('../../config/db/database');
-const boxService = require('../../src/services/boxService');
+const db = require('../../../config/db/database');
+const boxService = require('../../../src/services/boxService');
 
 describe('Box Routes', () => {
   let mockConnection;

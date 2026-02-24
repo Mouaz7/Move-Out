@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
  */
 
 // Mock database
-jest.mock('../../config/db/database', () => ({
+jest.mock('../../../config/db/database', () => ({
   getConnection: jest.fn(),
   query: jest.fn(),
   healthCheck: jest.fn(),
@@ -23,7 +23,7 @@ jest.mock('nodemailer', () => ({
   }),
 }));
 
-const db = require('../../config/db/database');
+const db = require('../../../config/db/database');
 
 describe('Authentication Routes', () => {
   let app;
@@ -66,7 +66,7 @@ describe('Authentication Routes', () => {
 
   describe('Password Validation', () => {
     // Import the validatePassword function from auth routes
-    const authRoutes = require('../../routes/auth');
+    const authRoutes = require('../../../routes/auth');
     const validatePassword = authRoutes.validatePassword;
 
     test('should accept strong password with all requirements', () => {
