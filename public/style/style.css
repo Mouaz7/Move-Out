@@ -768,13 +768,12 @@ label,
 /* ===== About Page ===== */
 .about-container {
   max-width: 900px;
-  margin: 100px auto 0;
-  padding: 40px 40px 0;
+  margin: 100px auto 40px;
+  padding: 40px;
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
-  border-bottom: none;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
 
@@ -1514,7 +1513,7 @@ input[type="checkbox"] {
   .form-container,
   .admin-container,
   .qr-container {
-    margin: 80px 16px 24px;
+    margin: 80px 16px 40px;
     padding: 24px;
   }
 
@@ -2640,8 +2639,8 @@ h1.qr-header {
 @media screen and (max-width: 768px) {
   /* About Container */
   .about-container {
-    margin: 80px 12px 24px;
-    padding: 20px;
+    margin: 80px 12px 40px;
+    padding: 24px;
   }
 
   /* Hero Section */
