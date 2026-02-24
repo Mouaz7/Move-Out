@@ -49,8 +49,11 @@ const ThemeManager = {
   updateHeader(theme) {
     const header = document.querySelector('header');
     if (header) {
-      // Remove inline styles to let CSS variables control the colors
-      header.style.background = '';
+      if (theme === 'light') {
+        header.style.background = 'rgba(255, 255, 255, 0.9)';
+      } else {
+        header.style.background = 'rgba(15, 15, 35, 0.9)';
+      }
     }
     
     // Update footer as well

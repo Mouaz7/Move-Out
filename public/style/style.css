@@ -231,20 +231,14 @@ header {
   right: 0;
   z-index: 1000;
   background: var(--bg-dark);
-  background-image:
-    radial-gradient(
-      ellipse at top left,
-      rgba(102, 126, 234, 0.15) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse at bottom right,
-      rgba(118, 75, 162, 0.15) 0%,
-      transparent 50%
-    );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border);
   padding: 14px 20px;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
@@ -2633,7 +2627,6 @@ th {
   background: transparent;
 }
 
-
 /* ===== Page Title Enhancement ===== */
 .container h1,
 h1.qr-header {
@@ -2983,20 +2976,20 @@ h1.qr-header {
   .footer-new {
     padding: 12px 0;
   }
-  
+
   .footer-content {
     gap: 12px;
   }
-  
+
   .footer-logo-section {
     font-size: 0.9rem;
     gap: 6px;
   }
-  
+
   .footer-logo-icon {
     font-size: 1rem;
   }
-  
+
   .footer-text {
     font-size: 0.8rem;
   }
@@ -3010,7 +3003,7 @@ h1.qr-header {
 }
 
 .logo-text {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   background: var(--primary-gradient);
@@ -3018,8 +3011,6 @@ h1.qr-header {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
-
 
 .social-link {
   width: 40px;
@@ -3055,7 +3046,7 @@ h1.qr-header {
     justify-content: center;
     gap: 15px;
   }
-  
+
   .footer-col {
     min-width: 100%;
   }
