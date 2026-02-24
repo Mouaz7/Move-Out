@@ -188,7 +188,7 @@ h6 {
 }
 
 h1 {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
   background: var(--primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -218,9 +218,8 @@ img {
 /* ===== Container ===== */
 .container {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  margin-top: 80px;
+  margin: clamp(60px, 8vh, 100px) auto 0;
+  padding: clamp(16px, 4vw, 24px);
 }
 
 /* ===== Header & Navigation ===== */
@@ -454,7 +453,7 @@ label,
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 80px);
-  padding: 100px 20px 40px;
+  padding: clamp(60px, 10vh, 100px) clamp(16px, 4vw, 24px) 40px;
 }
 
 .login-box {
@@ -489,7 +488,7 @@ label,
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 80px);
-  padding: 100px 20px 40px;
+  padding: clamp(60px, 10vh, 100px) clamp(16px, 4vw, 24px) 40px;
 }
 
 .signup-form {
@@ -524,8 +523,8 @@ label,
 /* ===== Profile Page ===== */
 .profile-container {
   max-width: 600px;
-  margin: 100px auto 40px;
-  padding: 20px;
+  margin: clamp(60px, 10vh, 100px) auto 40px;
+  padding: clamp(16px, 4vw, 24px);
 }
 
 .profile-container .card {
@@ -629,8 +628,8 @@ label,
 /* ===== Box Cards ===== */
 .box-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 100%, 280px), 1fr));
+  gap: clamp(16px, 3vw, 24px);
   padding: 0;
   list-style: none;
 }
@@ -768,8 +767,8 @@ label,
 /* ===== About Page ===== */
 .about-container {
   max-width: 900px;
-  margin: 100px auto 40px;
-  padding: 40px;
+  margin: clamp(60px, 10vh, 100px) auto clamp(24px, 5vh, 40px);
+  padding: clamp(24px, 5vw, 40px);
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -810,8 +809,8 @@ label,
 /* ===== Form Container (Create/Edit Box) ===== */
 .form-container {
   max-width: 700px;
-  margin: 100px auto 40px;
-  padding: 40px;
+  margin: clamp(60px, 10vh, 100px) auto 40px;
+  padding: clamp(24px, 5vw, 40px);
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -954,8 +953,8 @@ label,
 /* ===== Admin Page ===== */
 .admin-container {
   max-width: 1200px;
-  margin: 100px auto 40px;
-  padding: 40px;
+  margin: clamp(60px, 10vh, 100px) auto 40px;
+  padding: clamp(24px, 5vw, 40px);
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -1024,7 +1023,7 @@ label,
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  padding: 40px;
+  padding: clamp(24px, 5vw, 40px);
   width: 100%;
   max-width: 500px;
   box-shadow: var(--shadow-lg);
@@ -1870,11 +1869,11 @@ input[type="checkbox"] {
 /* ===== Enhanced Hero Section ===== */
 .hero-section {
   position: relative;
-  padding: 80px 40px;
+  padding: clamp(40px, 8vh, 80px) clamp(20px, 4vw, 40px);
   text-align: center;
   background: var(--gradient-hero);
   border-radius: var(--radius-xl, 28px);
-  margin-bottom: 48px;
+  margin-bottom: clamp(32px, 6vh, 48px);
   overflow: hidden;
   animation: scaleIn 0.6s ease-out;
 }
@@ -1981,7 +1980,7 @@ input[type="checkbox"] {
 
 .section-title {
   font-family: "Poppins", sans-serif;
-  font-size: 1.8rem;
+  font-size: clamp(1.4rem, 3.5vw, 1.8rem);
   font-weight: 700;
   margin-bottom: 20px;
   display: flex;
@@ -2016,7 +2015,7 @@ input[type="checkbox"] {
 
 .feature-card {
   position: relative;
-  padding: 32px;
+  padding: clamp(24px, 4vw, 32px);
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -2086,7 +2085,7 @@ input[type="checkbox"] {
 
 /* ===== Enhanced Info Cards ===== */
 .info-card-enhanced {
-  padding: 32px;
+  padding: clamp(24px, 4vw, 32px);
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -2156,8 +2155,8 @@ input[type="checkbox"] {
 .developer-card {
   display: flex;
   align-items: center;
-  gap: 32px;
-  padding: 40px;
+  gap: clamp(20px, 4vw, 32px);
+  padding: clamp(24px, 5vw, 40px);
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
