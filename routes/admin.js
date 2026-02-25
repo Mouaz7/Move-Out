@@ -152,7 +152,7 @@ router.post("/delete", isAdmin, async (req, res) => {
       showDashboard: false,
       showSessions: false,
       activeSessions: [],
-      errorMessage: "Error deleting user.",
+      errorMessage: error.message || "Error deleting user.",
       successMessage: null,
       user: req.session.user,
       title: "Admin Panel - Manage Users",
