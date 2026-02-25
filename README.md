@@ -25,8 +25,8 @@
 </p>
 
 <p align="center">
-  <a href="https://move-out.onrender.com/move/about">
-    <img src="https://img.shields.io/badge/🌐_Live_Demo-move--out.onrender.com-00C853?style=for-the-badge" alt="Live Demo">
+  <a href="https://move-out-i4d2.onrender.com/move/about">
+    <img src="https://img.shields.io/badge/🌐_Live_Demo-move--out--i4d2.onrender.com-00C853?style=for-the-badge" alt="Live Demo">
   </a>
 </p>
 
@@ -48,7 +48,8 @@
 - 📱 **Scan QR codes** for instant box identification
 - 🔒 **PIN protection** for sensitive items
 - 🌐 **Access anywhere** - cloud-based solution
-- 🎨 **Beautiful UI** - modern glassmorphism design
+- 🎨 **Premium SaaS UI** - Minimalist, high-end design with tailored Navy & Gold branding
+- ✨ **Enhanced Typography** - "Poppins" font integration for a clean, modern aesthetic
 - 🌍 **Multi-language** - Swedish and English support
 
 ---
@@ -439,7 +440,7 @@ Tests:       47 passed, 47 total
 
 ### Login Page
 
-Modern glassmorphism design with Google OAuth support.
+Modern glassmorphism design with a premium Navy & Gold color palette, featuring Google OAuth support.
 
 ### Dashboard
 
@@ -447,11 +448,11 @@ View all your boxes with custom labels and quick actions.
 
 ### Box Details
 
-See content, QR code, and sharing options.
+See content, QR code, and sharing options in a clean, uncluttered layout.
 
 ### Admin Panel
 
-Manage users and monitor active sessions.
+Manage users and monitor active sessions via a structured, minimalist SaaS-style table interface featuring crisp status badges and robust data organization.
 
 ---
 
