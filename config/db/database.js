@@ -39,7 +39,7 @@ function initializePostgreSQLPool() {
     },
     max: 10,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 60000, // 60 seconds to handle Render cold start
+    connectionTimeoutMillis: 10000, // 10 seconds to handle Render cold start, failing fast instead of hanging Envoy
   });
 
   console.log("✓ PostgreSQL connection pool initialized");

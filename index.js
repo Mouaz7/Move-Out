@@ -57,7 +57,7 @@ if (process.env.NODE_ENV === "production" && process.env.SUPABASE_DB_URL) {
   const pgPool = new Pool({
     connectionString: process.env.SUPABASE_DB_URL,
     ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 60000, // 60 seconds for Render cold start
+    connectionTimeoutMillis: 10000, // 10 seconds to fail fast instead of hanging Envoy
     idleTimeoutMillis: 30000,
     max: 5,
   });
@@ -65,6 +65,11 @@ if (process.env.NODE_ENV === "production" && process.env.SUPABASE_DB_URL) {
     pool: pgPool,
     tableName: "session", // Will be created automatically
     createTableIfMissing: true,
+  });
+  
+  // Log session store errors which might happen during DB connection timeouts
+  sessionStore.on('error', function(error) {
+    console.error('Session store error:', error);
   });
 }
 
