@@ -1,0 +1,46 @@
+<!-- views/partials/toast.ejs -->
+<div class="toast-container" id="toastContainer">
+  <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+    <div class="toast-message-box toast-success">
+      <i class="fas fa-check-circle toast-icon"></i>
+      <div class="toast-content">
+        <div class="toast-title">Success</div>
+        <div class="toast-text"><%= success_msg %></div>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+    <div class="toast-message-box toast-error">
+      <i class="fas fa-exclamation-circle toast-icon"></i>
+      <div class="toast-content">
+        <div class="toast-title">Error</div>
+        <div class="toast-text"><%= error_msg %></div>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (typeof error !== 'undefined' && error.length > 0) { %>
+    <div class="toast-message-box toast-error">
+      <i class="fas fa-exclamation-circle toast-icon"></i>
+      <div class="toast-content">
+        <div class="toast-title">Error</div>
+        <div class="toast-text"><%= error %></div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<script nonce="<%= typeof cspNonce !== 'undefined' ? cspNonce : '' %>">
+  // Auto-remove toasts after animation completes (5 seconds)
+  document.addEventListener('DOMContentLoaded', () => {
+    const toasts = document.querySelectorAll('.toast-message-box');
+    toasts.forEach(toast => {
+      setTimeout(() => {
+        if(toast.parentElement) {
+          toast.remove();
+        }
+      }, 5000);
+    });
+  });
+</script>
