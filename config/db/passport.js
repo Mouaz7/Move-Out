@@ -16,7 +16,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:1338/auth/google/callback",
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || "/auth/google/callback",
+        proxy: true // Trusts the Render proxy to resolve the correct domain (https://<app>.onrender.com)
       },
       async (accessToken, refreshToken, profile, done) => {
         let connection;
